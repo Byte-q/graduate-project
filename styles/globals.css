@@ -1,0 +1,295 @@
+/* استيراد خط Tajawal من Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ألوان الخلفية والنص الأساسية */
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
+
+    /* ألوان البطاقات */
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    /* ألوان القوائم المنبثقة */
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    /* اللون الرئيسي - أزرق */
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 214 100% 60%;
+    --primary-dark: 214 100% 40%;
+
+    /* اللون الثانوي - رمادي فاتح */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    /* ألوان الحالات المختلفة */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 8% 46%;
+
+    --accent: 220 14% 96%;
+    --accent-foreground: 222 47% 11%;
+
+    /* اللون التحذيري - أحمر */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    /* ألوان الإطارات والحدود */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 221 83% 53%;
+
+    /* نصف قطر الزوايا */
+    --radius: 0.5rem;
+
+    /* الألوان المخصصة للموقع */
+    --brand-primary: 221 83% 53%;     /* #3b82f6 - أزرق */
+    --brand-secondary: 25 95% 53%;    /* #f97316 - برتقالي */
+    --brand-accent: 262 83% 58%;      /* #8b5cf6 - بنفسجي */
+    --brand-success: 142 72% 50%;     /* #22c55e - أخضر */
+    --brand-warning: 38 92% 50%;      /* #f59e0b - أصفر */
+    --brand-info: 199 89% 48%;        /* #0ea5e9 - أزرق فاتح */
+    --brand-error: 0 84% 60%;         /* #ef4444 - أحمر */
+  }
+
+  .dark {
+    /* ألوان الخلفية والنص الأساسية في الوضع الداكن */
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+
+    /* ألوان البطاقات في الوضع الداكن */
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+
+    /* ألوان القوائم المنبثقة في الوضع الداكن */
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+
+    /* اللون الرئيسي - أزرق في الوضع الداكن */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 214 100% 70%;
+    --primary-dark: 214 100% 50%;
+
+    /* اللون الثانوي - رمادي داكن في الوضع الداكن */
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    /* ألوان الحالات المختلفة في الوضع الداكن */
+    --muted: 215 28% 17%;
+    --muted-foreground: 217 19% 73%;
+
+    --accent: 215 28% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    /* اللون التحذيري - أحمر في الوضع الداكن */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    /* ألوان الإطارات والحدود في الوضع الداكن */
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 224.3 76.3% 48%;
+
+    /* الألوان المخصصة للموقع في الوضع الداكن */
+    --brand-primary: 217 91% 60%;     /* #60a5fa - أزرق */
+    --brand-secondary: 25 95% 53%;    /* #f97316 - برتقالي */
+    --brand-accent: 263 70% 71%;      /* #a78bfa - بنفسجي */
+    --brand-success: 142 71% 45%;     /* #10b981 - أخضر */
+    --brand-warning: 39 96% 55%;      /* #fbbf24 - أصفر */
+    --brand-info: 199 98% 48%;        /* #38bdf8 - أزرق فاتح */
+    --brand-error: 0 91% 71%;         /* #f87171 - أحمر */
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: 'Tajawal', sans-serif;
+  }
+  
+  /* تطبيق الخط العربي على الموقع بشكل افتراضي */
+  html, body {
+    direction: rtl;
+  }
+
+  /* Font settings */
+  .font-tajawal {
+    font-family: var(--font-tajawal), 'Tajawal', sans-serif;
+  }
+
+  .font-inter {
+    font-family: var(--font-inter), 'Inter', sans-serif;
+  }
+  
+  /* Header & Footer Enhancements */
+  :root {
+    --header-height: 64px;
+  }
+  
+  .sticky-header {
+    position: sticky;
+    top: 0;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+  }
+  
+  .header-shadow {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Animations */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .animate-slide-in-top {
+    animation: slideInTop 0.3s ease-in-out;
+  }
+  
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideInTop {
+    from { transform: translateY(-10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Utility classes for RTL */
+  [dir="rtl"] .rtl\:space-x-reverse > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+  }
+
+  [dir="rtl"] .rtl\:right-auto {
+    right: auto;
+  }
+
+  [dir="rtl"] .rtl\:left-auto {
+    left: auto;
+  }
+  
+  /* أنماط إضافية للتوافق مع RTL */
+  .rtl-flip {
+    transform: scaleX(-1);
+  }
+  
+  /* تعديل أنماط الهوامش لتتناسب مع RTL */
+  [dir="rtl"] .ml-1, [dir="rtl"] .ml-2, [dir="rtl"] .ml-3, [dir="rtl"] .ml-4, [dir="rtl"] .ml-5 {
+    margin-left: 0;
+    margin-right: 0.25rem;
+  }
+  [dir="rtl"] .mr-1, [dir="rtl"] .mr-2, [dir="rtl"] .mr-3, [dir="rtl"] .mr-4, [dir="rtl"] .mr-5 {
+    margin-right: 0;
+    margin-left: 0.25rem;
+  }
+  
+  /* تحويل الهوامش في RTL */
+  [dir="rtl"] .mr-1 { margin-left: 0.25rem; margin-right: 0; }
+  [dir="rtl"] .mr-2 { margin-left: 0.5rem; margin-right: 0; }
+  [dir="rtl"] .mr-3 { margin-left: 0.75rem; margin-right: 0; }
+  [dir="rtl"] .mr-4 { margin-left: 1rem; margin-right: 0; }
+  [dir="rtl"] .mr-5 { margin-left: 1.25rem; margin-right: 0; }
+  
+  [dir="rtl"] .ml-1 { margin-right: 0.25rem; margin-left: 0; }
+  [dir="rtl"] .ml-2 { margin-right: 0.5rem; margin-left: 0; }
+  [dir="rtl"] .ml-3 { margin-right: 0.75rem; margin-left: 0; }
+  [dir="rtl"] .ml-4 { margin-right: 1rem; margin-left: 0; }
+  [dir="rtl"] .ml-5 { margin-right: 1.25rem; margin-left: 0; }
+  
+  /* تعديل أنماط الأيقونات في RTL */
+  [dir="rtl"] svg.rtl-mirror {
+    transform: scaleX(-1);
+  }
+  
+  /* أنماط خاصة لعلامات الاختيار في RTL */
+  [dir="rtl"] .checkmark-icon {
+    margin-left: 0;
+    margin-right: 0.5rem;
+  }
+  
+  /* تصحيحات لتباعد العناصر في RTL */
+  [dir="rtl"] .space-x-1 > :not([hidden]) ~ :not([hidden]),
+  [dir="rtl"] .space-x-2 > :not([hidden]) ~ :not([hidden]),
+  [dir="rtl"] .space-x-3 > :not([hidden]) ~ :not([hidden]),
+  [dir="rtl"] .space-x-4 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+  }
+  
+  /* تصحيح ترتيب المحتوى لـ RTL */
+  [dir="rtl"] .flex.rtl-reverse {
+    flex-direction: row-reverse;
+  }
+  
+  /* أنماط خاصة بالأزرار والعناصر التفاعلية في RTL */
+  [dir="rtl"] .inline-flex.rtl-reverse {
+    flex-direction: row-reverse;
+  }
+  
+  /* تعديل أحجام الخط للغة العربية */
+  html[dir="rtl"] {
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+  }
+
+  /* Gradients */
+  .bg-gradient-brand {
+    background-image: linear-gradient(to right, hsl(var(--primary)), #3b82f6);
+  }
+
+  .bg-gradient-secondary {
+    background-image: linear-gradient(to right, #f59e0b, #ea580c);
+  }
+
+  .bg-gradient-accent {
+    background-image: linear-gradient(to right, #a855f7, #d946ef);
+  }
+
+  .bg-gradient-success {
+    background-image: linear-gradient(to right, #10b981, #16a34a);
+  }
+
+  .text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  /* Container styles */
+  .container {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+}
