@@ -4,7 +4,7 @@
 console.log('Starting the Next.js + Express development server...');
 
 // Ensure we're using the right host and port for Replit
-process.env.HOST = '0.0.0.0';
+process.env.HOST = 'localhost';
 process.env.PORT = 5000; // Use 5000 to match Replit settings
 process.env.NODE_ENV = 'development';
 

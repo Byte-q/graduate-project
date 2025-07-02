@@ -13,7 +13,7 @@ dotenv.config();
 
 // Determine if we're in development or production
 const dev = process.env.NODE_ENV !== 'production';
-const hostname = process.env.HOST || '0.0.0.0'; // Use 0.0.0.0 for Replit compatibility
+const hostname = process.env.HOST || 'localhost'; // Use localhost for Replit compatibility
 const port = process.env.PORT || 5000;
 
 // Initialize Next.js app
