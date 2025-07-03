@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import MainLayout from '@/components/layout/MainLayout';
 import { SuccessStoryCard, SuccessStoryCardSkeleton } from '@/components/success-stories/SuccessStoryCard';
 import { SearchForm } from '@/components/search/SearchForm';
-import { Pagination } from '@/components/ui/pagination';
+import { Pagination } from '@/components/ui/Pagination';
 import { SuccessStory } from '@/shared/schema';
 import { fetchWithCache } from '@/hooks/use-cached-data';
 
@@ -112,9 +112,9 @@ export default function SuccessStoriesPage({
 
             <div className="mt-8">
               <Pagination 
-                page={currentPage}
+                currentPage={currentPage}
                 totalPages={currentTotalPages}
-                onChange={handlePageChange}
+                onPageChange={handlePageChange}
               />
             </div>
           </>

@@ -23,22 +23,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     console.log(`API: معلمات البحث: page=${pageNumber}, limit=${limitNumber}, search=${search}`);
 
-    // تنفيذ استعلام قاعدة البيانات
-    let query = db.select().from(categories);
-    
-    // إضافة شرط البحث إذا تم تحديده
-    if (search) {
-      const searchTerm = '%' + search.toString() + '%';
-      query = query.where(sql`${categories.name} ILIKE ${searchTerm}`);
-    }
-    
-    // جلب إجمالي عدد التصنيفات للترقيم
+    // إعداد شرط البحث إذا تم تحديده
+    const searchTerm = search ? '%' + search.toString() + '%' : undefined;
+
+    // جلب إجمالي عدد التصنيفات للترقيم (مع شرط البحث إذا وجد)
     const [{ value: totalItems }] = await db
       .select({ value: count() })
-      .from(categories);
-    
-    // استعلام التصنيفات مع الترقيم
-    const categoriesList = await query
+      .from(categories)
+      .where(searchTerm ? sql`${categories.name} ILIKE ${searchTerm}` : undefined);
+
+    // استعلام التصنيفات مع الترقيم والبحث
+    const categoriesList = await db
+      .select()
+      .from(categories)
+      .where(searchTerm ? sql`${categories.name} ILIKE ${searchTerm}` : undefined)
       .limit(limitNumber)
       .offset(offset)
       .orderBy(categories.name);

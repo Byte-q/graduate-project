@@ -201,7 +201,11 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({ params
     const formattedPage = {
       ...page,
       createdAt: page.createdAt instanceof Date ? page.createdAt.toISOString() : page.createdAt,
-      updatedAt: page.updatedAt instanceof Date ? page.updatedAt.toISOString() : page.updatedAt
+      updatedAt: page.updatedAt instanceof Date ? page.updatedAt.toISOString() : page.updatedAt,
+      metaTitle: page.metaTitle ?? undefined,
+      metaDescription: page.metaDescription ?? undefined,
+      imageUrl: page.imageUrl ?? undefined,
+      isPublished: !!page.isPublished,
     };
     
     return {

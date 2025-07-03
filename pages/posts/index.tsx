@@ -13,19 +13,24 @@ interface Post {
   id: number;
   title: string;
   slug: string;
-  content?: string;
-  excerpt?: string;
-  imageUrl?: string;
+  content: string;
+  excerpt: string | null;
+  imageUrl: string | null;
   thumbnailUrl?: string;
   authorId?: number;
   authorName?: string;
   categoryId?: number;
-  status?: string;
-  isFeatured?: boolean;
+  status: string;
+  isFeatured: boolean | null;
   viewCount?: number;
-  createdAt: string | Date;
-  updatedAt: string | Date;
+  views?: number;
+  createdAt: Date | string;
+  updatedAt: Date | string;
   category?: { id: number; name: string; slug: string; };
+  focusKeyword: string | null;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  metaKeywords: string | null;
 }
 
 interface Category {
@@ -240,7 +245,16 @@ export default function PostsPage({
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {posts.map((post) => (
-                    <PostCard key={post.id} post={post} />
+                    <PostCard
+                      key={post.id}
+                      post={{
+                        ...post,
+                        authorId: post.authorId ?? 0, // Ensure authorId is always a number
+                        createdAt: typeof post.createdAt === 'string' ? new Date(post.createdAt) : post.createdAt,
+                        updatedAt: typeof post.updatedAt === 'string' ? new Date(post.updatedAt) : post.updatedAt,
+                        views: post.views !== undefined ? post.views : null, // Ensure views is number or null
+                      }}
+                    />
                   ))}
                 </div>
                 

@@ -3,7 +3,41 @@ import { db } from '@/server/db';
 import { posts, categories, users } from '@/shared/schema';
 import { eq, sql } from 'drizzle-orm';
 
-export default async function handler(req: NextApiRequest, NextApiResponse) {
+interface ApiResponseSuccess {
+  success: true;
+  post: FormattedPost;
+}
+
+interface ApiResponseError {
+  success: false;
+  message: string;
+}
+
+interface CategoryData {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+interface AuthorData {
+  id: number;
+  name: string;
+  username: string;
+  bio: string | null;
+  avatarUrl: string | null;
+}
+
+interface FormattedPost {
+  [key: string]: any;
+  category: CategoryData | null;
+  author: AuthorData | null;
+  authorName: string;
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<ApiResponseSuccess | ApiResponseError>
+) {
   // استخراج slug من المعلمات
   const { slug } = req.query;
   
@@ -27,7 +61,24 @@ export default async function handler(req: NextApiRequest, NextApiResponse) {
     
     // البحث عن المقال بواسطة slug
     const postResult = await db
-      .select()
+      .select({
+        // include all required fields explicitly, including categoryId and authorId
+        id: posts.id,
+        slug: posts.slug,
+        createdAt: posts.createdAt,
+        status: posts.status,
+        title: posts.title,
+        content: posts.content,
+        isFeatured: posts.isFeatured,
+        focusKeyword: posts.focusKeyword,
+        imageUrl: posts.imageUrl,
+        updatedAt: posts.updatedAt,
+        views: posts.views,
+        metaDescription: posts.metaDescription,
+        metaKeywords: posts.metaKeywords,
+        categoryId: posts.categoryId,
+        authorId: posts.authorId
+      })
       .from(posts)
       .where(eq(posts.slug, slug))
       .limit(1);
@@ -55,7 +106,7 @@ export default async function handler(req: NextApiRequest, NextApiResponse) {
     }
     
     // جلب بيانات التصنيف إذا كان موجودًا
-    let category = null;
+    let category: CategoryData | null = null;
     if (post.categoryId) {
       const categoryResult = await db
         .select()
@@ -64,12 +115,16 @@ export default async function handler(req: NextApiRequest, NextApiResponse) {
         .limit(1);
       
       if (categoryResult && categoryResult.length > 0) {
-        category = categoryResult[0];
+        category = {
+          id: categoryResult[0].id,
+          name: categoryResult[0].name,
+          slug: categoryResult[0].slug
+        };
       }
     }
     
     // جلب بيانات الكاتب إذا كان موجودًا
-    let author = null;
+    let author: AuthorData | null = null;
     if (post.authorId) {
       const authorResult = await db
         .select({
@@ -89,7 +144,7 @@ export default async function handler(req: NextApiRequest, NextApiResponse) {
     }
     
     // تنسيق البيانات للاستجابة
-    const formattedPost = {
+    const formattedPost: FormattedPost = {
       ...post,
       category: category ? {
         id: category.id,

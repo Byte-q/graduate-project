@@ -24,21 +24,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log(`API: معلمات البحث: page=${pageNumber}, limit=${limitNumber}, search=${search}`);
 
     // تنفيذ استعلام قاعدة البيانات
-    let query = db.select().from(countries);
+    // إعداد استعلام الدول مع شرط البحث إذا تم تحديده
+    const searchTerm = search ? '%' + search.toString() + '%' : undefined;
+    const baseQuery = db.select().from(countries);
+    const filteredQuery = searchTerm
+      ? baseQuery.where(sql`${countries.name} ILIKE ${searchTerm}`)
+      : baseQuery;
     
-    // إضافة شرط البحث إذا تم تحديده
-    if (search) {
-      const searchTerm = '%' + search.toString() + '%';
-      query = query.where(sql`${countries.name} ILIKE ${searchTerm}`);
-    }
-    
-    // جلب إجمالي عدد الدول للترقيم
+    // جلب إجمالي عدد الدول للترقيم (مع مراعاة البحث)
     const [{ value: totalItems }] = await db
       .select({ value: count() })
-      .from(countries);
+      .from(countries)
+      .where(
+        searchTerm ? sql`${countries.name} ILIKE ${searchTerm}` : sql`TRUE`
+      );
     
     // استعلام الدول مع الترقيم
-    const countriesList = await query
+    const countriesList = await filteredQuery
       .limit(limitNumber)
       .offset(offset)
       .orderBy(countries.name);

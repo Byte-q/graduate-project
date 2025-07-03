@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { db } from '@/db';
 import { users } from '@/shared/schema';
-import { eq, like, desc, asc } from 'drizzle-orm';
+import { eq, like, desc, asc, and, or } from 'drizzle-orm';
 
 // تعريف نوع البيانات للرد
 type ApiResponse = {
@@ -34,47 +34,57 @@ export default async function handler(
     const currentPage = parseInt(page as string, 10) || 1;
     
     // بناء استعلام مع المرشحات
-    let query = db.select().from(users);
-    
+    let whereConditions = [];
+
     // إضافة مرشحات البحث إذا وجدت
     if (search) {
       const searchTerm = `%${search}%`;
-      query = query.where(
-        like(users.fullName, searchTerm) || 
-        like(users.username, searchTerm) || 
-        like(users.email, searchTerm)
+      whereConditions.push(
+        or(
+          like(users.fullName, searchTerm),
+          like(users.username, searchTerm),
+          like(users.email, searchTerm)
+        )
       );
     }
-    
+
     // تصفية حسب الدور
     if (role && role !== 'all') {
-      query = query.where(eq(users.role, role as string));
+      whereConditions.push(eq(users.role, role as string));
     }
-    
+
+    // بناء الاستعلام الأساسي مع المرشحات
+    const filteredQuery = whereConditions.length > 0
+      ? db.select().from(users).where(and(...whereConditions))
+      : db.select().from(users);
+
     // في البيئة الحقيقية، ستقوم بتصفية حسب الحالة (نشط/غير نشط)
     // هنا نفترض وجود حقل isActive في جدول المستخدمين
     // if (status && status !== 'all') {
-    //   query = query.where(eq(users.isActive, status === 'active'));
+    //   filteredQuery = filteredQuery.where(eq(users.isActive, status === 'active'));
     // }
-    
-    // الحصول على العدد الإجمالي للمستخدمين مع المرشحات
-    const totalCount = await query.execute();
-    const totalPages = Math.ceil(totalCount.length / PAGE_SIZE);
-    
+
+    // استعلام منفصل لحساب العدد الإجمالي
+    const countQuery = whereConditions.length > 0
+      ? db.select().from(users).where(and(...whereConditions))
+      : db.select().from(users);
+    const totalCountArr = await countQuery.execute();
+    const totalPages = Math.ceil(totalCountArr.length / PAGE_SIZE);
     // ترتيب النتائج
+    let pagedQuery;
     if (sortDirection === 'asc') {
       // @ts-ignore - سنتجاهل خطأ TypeScript هنا لأن الحقل قد يكون ديناميكيًا
-      query = query.orderBy(asc(users[sortBy as keyof typeof users]));
+      pagedQuery = filteredQuery.orderBy(asc(users[sortBy as keyof typeof users]));
     } else {
       // @ts-ignore - سنتجاهل خطأ TypeScript هنا لأن الحقل قد يكون ديناميكيًا
-      query = query.orderBy(desc(users[sortBy as keyof typeof users]));
+      pagedQuery = filteredQuery.orderBy(desc(users[sortBy as keyof typeof users]));
     }
-    
+
     // الحصول على الصفحة المطلوبة
-    query = query.limit(PAGE_SIZE).offset((currentPage - 1) * PAGE_SIZE);
-    
+    pagedQuery = pagedQuery.limit(PAGE_SIZE).offset((currentPage - 1) * PAGE_SIZE);
+
     // تنفيذ الاستعلام
-    const usersData = await query.execute();
+    const usersData = await pagedQuery.execute();
     
     // ضبط بنية البيانات النهائية
     const formattedUsers = usersData.map(user => {

@@ -93,10 +93,10 @@ export default async function handler(
       id: scholarships.id,
       title: scholarships.title,
       slug: scholarships.slug,
-      viewCount: scholarships.viewCount
+      viewCount: (scholarships as any).viewCount
     })
     .from(scholarships)
-    .orderBy(desc(scholarships.viewCount))
+    .orderBy(desc((scholarships as any).viewCount))
     .limit(5)
     .execute();
 

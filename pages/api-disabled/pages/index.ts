@@ -22,26 +22,11 @@ export default async function handler(
     const sortOrder = req.query.sortOrder as string || 'desc';
     const menu = req.query.menu as string;
 
-    // بناء الاستعلام الأساسي
-    let query = db.select({
-      id: pages.id,
-      title: pages.title,
-      slug: pages.slug,
-      metaTitle: pages.metaTitle,
-      metaDescription: pages.metaDescription,
-      imageUrl: pages.imageUrl,
-      isPublished: pages.isPublished,
-      createdAt: pages.createdAt,
-      updatedAt: pages.updatedAt,
-      // نقوم بتحديد جزء صغير من المحتوى كمقتطف
-      excerpt: sql<string>`SUBSTRING(${pages.content}, 1, 200)`
-    }).from(pages);
-
-    // إضافة فلتر الحالة
+    // بناء شروط الاستعلام
+    const whereConditions = [];
     if (!showUnpublished) {
-      query = query.where(eq(pages.isPublished, true));
+      whereConditions.push(eq(pages.isPublished, true));
     }
-
     // إضافة فلتر القائمة (إذا كان مطلوبًا)
     if (menu) {
       // في هذه الحالة، نفترض أن هناك علاقة بين الصفحات والقوائم
@@ -51,18 +36,47 @@ export default async function handler(
     // تنفيذ استعلام الإحصاء
     const [{ count }] = await db
       .select({ count: sql<number>`count(*)` })
-      .from(query.as('filtered_pages'));
+      .from(pages)
+      .where(whereConditions.length > 0 ? sql.join(whereConditions, sql` AND `) : undefined);
 
     // إضافة الترتيب والحد والإزاحة للاستعلام الرئيسي
-    const orderColumn = pages[sortBy as keyof typeof pages] || pages.createdAt;
-    
-    query = query
+    const validSortColumns = [
+      'id',
+      'title',
+      'slug',
+      'metaTitle',
+      'metaDescription',
+      'imageUrl',
+      'isPublished',
+      'createdAt',
+      'updatedAt'
+    ] as const;
+    const sortColumn = validSortColumns.includes(sortBy as any) ? sortBy : 'createdAt';
+    // Ensure orderColumn is a column, not the table itself
+    const orderColumn = (pages as Record<string, any>)[sortColumn];
+
+    if (!orderColumn) {
+      throw new Error('Invalid sort column');
+    }
+
+    const items = await db
+      .select({
+        id: pages.id,
+        title: pages.title,
+        slug: pages.slug,
+        metaTitle: pages.metaTitle,
+        metaDescription: pages.metaDescription,
+        imageUrl: pages.imageUrl,
+        isPublished: pages.isPublished,
+        createdAt: pages.createdAt,
+        updatedAt: pages.updatedAt,
+        excerpt: sql<string>`SUBSTRING(${pages.content}, 1, 200)`
+      })
+      .from(pages)
+      .where(whereConditions.length > 0 ? sql.join(whereConditions, sql` AND `) : undefined)
       .orderBy(sortOrder === 'asc' ? orderColumn : desc(orderColumn))
       .limit(limit)
       .offset(offset);
-
-    // تنفيذ الاستعلام
-    const items = await query;
 
     // إعداد الاستجابة
     const totalItems = Number(count);

@@ -266,7 +266,7 @@ export default function ScholarshipDetailPage({
                 
                 <div className="border-t border-gray-200 dark:border-gray-700 mt-5 pt-5">
                   <a 
-                    href={scholarship.applyUrl || scholarship.universityUrl || scholarship.websiteUrl || `https://www.google.com/search?q=${encodeURIComponent(scholarship.title + ' ' + scholarship.university + ' application')}`} 
+                    href={`https://www.google.com/search?q=${encodeURIComponent(scholarship.title + ' ' + scholarship.studyDestination + ' application')}`} 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="flex justify-center items-center gap-2 w-full py-3 px-4 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium"
@@ -408,7 +408,7 @@ export default function ScholarshipDetailPage({
               </div>
               
               <a 
-                href={scholarship.applyUrl || scholarship.universityUrl || scholarship.websiteUrl || `https://www.google.com/search?q=${encodeURIComponent(scholarship.title + ' ' + scholarship.university + ' application')}`} 
+                href={`https://www.google.com/search?q=${encodeURIComponent(scholarship.title + ' ' + scholarship.studyDestination + ' application')}`} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex justify-center items-center gap-2 w-full py-3 px-4 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium"
@@ -573,13 +573,22 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
             if (!relatedItem || typeof relatedItem !== 'object') return acc;
             
             try {
+              const item = relatedItem as {
+                id?: number;
+                title?: string;
+                slug?: string;
+                thumbnailUrl?: string;
+                imageUrl?: string;
+                deadline?: string;
+                isFeatured?: boolean;
+              };
               acc.push({
-                id: relatedItem.id || 0,
-                title: relatedItem.title || '',
-                slug: relatedItem.slug || '',
-                thumbnailUrl: relatedItem.thumbnailUrl || relatedItem.imageUrl || null,
-                deadline: relatedItem.deadline || null,
-                isFeatured: !!relatedItem.isFeatured
+                id: item.id || 0,
+                title: item.title || '',
+                slug: item.slug || '',
+                thumbnailUrl: item.thumbnailUrl || item.imageUrl || null,
+                deadline: item.deadline || null,
+                isFeatured: !!item.isFeatured
               });
             } catch (err) {
               console.error('خطأ في معالجة منحة ذات صلة:', err);

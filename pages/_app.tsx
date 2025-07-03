@@ -48,7 +48,7 @@ export default function App({ Component, pageProps }: AppProps) {
         }
         throw new TypeError('Cannot convert undefined or null to object');
       }
-      return originalArrayReduce.call(this, callback, initialValue);
+      return originalArrayReduce.call(this, callback as any, initialValue) as U;
     };
 
     console.log('تم تطبيق تصحيحات Object.entries و Array.reduce');

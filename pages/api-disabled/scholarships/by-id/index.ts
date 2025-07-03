@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { db } from '../../../db';
-import { scholarships, categories, levels, countries } from '../../../shared/schema';
+import { db } from '@/db/index';
+import { scholarships, categories, levels, countries } from '@/shared/schema';
 import { eq } from 'drizzle-orm';
 
 /**

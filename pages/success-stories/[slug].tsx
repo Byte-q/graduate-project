@@ -184,12 +184,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       // ضمان توافق الحقول الأساسية
       content: story.content || '',
       imageUrl: story.imageUrl || null,
-      thumbnailUrl: story.thumbnailUrl || story.imageUrl || null,
-      name: story.name || story.studentName || null,
-      studentName: story.studentName || story.name || null,
+      thumbnailUrl: story.imageUrl || null,
+      name: story.name || null,
+      studentName: story.name || null,
       // ضمان توافق تنسيق التاريخ
       createdAt: story.createdAt ? new Date(story.createdAt).toISOString() : new Date().toISOString(),
-      updatedAt: story.updatedAt ? new Date(story.updatedAt).toISOString() : new Date().toISOString()
+      // updatedAt: story.updatedAt ? new Date(story.updatedAt).toISOString() : new Date().toISOString()
     };
     
     // تحسين الأداء: إضافة خيار التخزين المؤقت Cache-Control لمدة ساعة

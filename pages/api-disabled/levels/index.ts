@@ -16,15 +16,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log(`API: معلمات البحث: page=${page}, limit=${limit}, search=${search}`);
     
     // بناء الاستعلام مع دعم البحث
-    let query = db.select().from(levels);
-    
-    // إضافة شرط البحث إذا كان موجودًا
-    if (search) {
-      query = query.where(
-        sql`LOWER(${levels.name}) LIKE LOWER(${'%' + search + '%'}) OR 
-           LOWER(${levels.description}) LIKE LOWER(${'%' + search + '%'})`
-      );
-    }
+    // بناء الاستعلام مع دعم البحث
+    const query = search
+      ? db
+          .select()
+          .from(levels)
+          .where(
+            sql`LOWER(${levels.name}) LIKE LOWER(${'%' + search + '%'}) OR 
+               LOWER(${levels.description}) LIKE LOWER(${'%' + search + '%'})`
+          )
+      : db.select().from(levels);
     
     // استعلام للحصول على العدد الإجمالي
     const countQuery = search

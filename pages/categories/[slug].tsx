@@ -4,7 +4,7 @@ import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import MainLayout from '@/components/layout/MainLayout';
 import { ScholarshipCard } from '@/components/scholarships/ScholarshipCard';
-import { Pagination } from '@/components/ui/pagination';
+import { Pagination } from '@/components/ui/Pagination';
 import { SearchForm } from '@/components/search/SearchForm';
 
 // تعريف نوع البيانات للتصنيف
@@ -160,9 +160,9 @@ export default function CategoryDetailPage({
         {totalPages > 1 && (
           <div className="mt-8">
             <Pagination
-              page={currentPage}
+              currentPage={currentPage}
               totalPages={totalPages}
-              onChange={handlePageChange}
+              onPageChange={handlePageChange}
             />
           </div>
         )}
@@ -259,11 +259,12 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
       const end_date = scholarship.endDate instanceof Date ? scholarship.endDate.toISOString() : 
                       scholarship.endDate ? String(scholarship.endDate) : null;
                       
-      const deadline = scholarship.deadline instanceof Date
-        ? scholarship.deadline.toISOString()
-        : scholarship.deadline
-        ? String(scholarship.deadline)
-        : null;
+      const deadline =
+        scholarship.deadline && typeof scholarship.deadline === 'object' && 'toISOString' in scholarship.deadline
+          ? (scholarship.deadline as Date).toISOString()
+          : scholarship.deadline
+          ? String(scholarship.deadline)
+          : null;
       
       // إرجاع كائن جديد مع جميع الخصائص محولة بشكل صحيح
       return {

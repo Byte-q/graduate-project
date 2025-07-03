@@ -41,8 +41,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // تنسيق البيانات للاستجابة
     const formattedStory = {
       ...story,
-      name: story.studentName || story.name || null, // ضمان وجود الاسم
-      studentName: story.studentName || story.name || null, // ضمان وجود الاسم
+      name: story.name || null, // ضمان وجود الاسم
+      studentName: story.name || null, // ضمان وجود الاسم
       
       // ضمان وجود البيانات الأساسية
       imageUrl: story.imageUrl || null,
