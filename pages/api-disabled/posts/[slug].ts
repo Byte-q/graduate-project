@@ -21,10 +21,8 @@ interface CategoryData {
 
 interface AuthorData {
   id: number;
-  name: string;
+  fullName: string;
   username: string;
-  bio: string | null;
-  avatarUrl: string | null;
 }
 
 interface FormattedPost {
@@ -62,7 +60,6 @@ export default async function handler(
     // البحث عن المقال بواسطة slug
     const postResult = await db
       .select({
-        // include all required fields explicitly, including categoryId and authorId
         id: posts.id,
         slug: posts.slug,
         createdAt: posts.createdAt,
@@ -76,7 +73,6 @@ export default async function handler(
         views: posts.views,
         metaDescription: posts.metaDescription,
         metaKeywords: posts.metaKeywords,
-        categoryId: posts.categoryId,
         authorId: posts.authorId
       })
       .from(posts)
@@ -105,34 +101,14 @@ export default async function handler(
       }
     }
     
-    // جلب بيانات التصنيف إذا كان موجودًا
-    let category: CategoryData | null = null;
-    if (post.categoryId) {
-      const categoryResult = await db
-        .select()
-        .from(categories)
-        .where(eq(categories.id, post.categoryId))
-        .limit(1);
-      
-      if (categoryResult && categoryResult.length > 0) {
-        category = {
-          id: categoryResult[0].id,
-          name: categoryResult[0].name,
-          slug: categoryResult[0].slug
-        };
-      }
-    }
-    
     // جلب بيانات الكاتب إذا كان موجودًا
     let author: AuthorData | null = null;
     if (post.authorId) {
       const authorResult = await db
         .select({
           id: users.id,
-          name: users.name,
-          username: users.username,
-          bio: users.bio,
-          avatarUrl: users.avatarUrl
+          fullName: users.fullName,
+          username: users.username
         })
         .from(users)
         .where(eq(users.id, post.authorId))
@@ -146,13 +122,9 @@ export default async function handler(
     // تنسيق البيانات للاستجابة
     const formattedPost: FormattedPost = {
       ...post,
-      category: category ? {
-        id: category.id,
-        name: category.name,
-        slug: category.slug
-      } : null,
+      category: null,
       author: author,
-      authorName: author?.name || 'كاتب المقال'
+      authorName: author?.fullName || 'كاتب المقال'
     };
     
     return res.status(200).json({

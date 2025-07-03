@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { db } from '@/db';
 import { scholarships, categories, countries, levels } from '@/shared/schema';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, and } from 'drizzle-orm';
 
 // إضافة وظيفة تسجيل الأخطاء للتشخيص
 function logError(error: any, context: string) {
@@ -49,9 +49,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const scholarship = scholarshipData[0];
     
     // تعديل اسم حقل الصورة إذا كان موجودًا
-    if (scholarship.imageUrl && !scholarship.thumbnailUrl) {
-      scholarship.thumbnailUrl = scholarship.imageUrl;
-    }
+    // if (scholarship.imageUrl && !scholarship.thumbnailUrl) {
+    //   scholarship.thumbnailUrl = scholarship.imageUrl;
+    // }
     
     // ملاحظة: لا يوجد عمود views في جدول المنح الدراسية
     // لذلك تم تعطيل هذا الجزء مؤقتًا
@@ -100,12 +100,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         title: scholarships.title,
         slug: scholarships.slug,
         deadline: scholarships.deadline,
-        thumbnailUrl: scholarships.thumbnailUrl,
         isFeatured: scholarships.isFeatured
       })
       .from(scholarships)
-      .where(eq(scholarships.categoryId, scholarship.categoryId))
-      .where(sql`${scholarships.id} != ${scholarship.id}`)
+      .where(
+        and(
+          eq(scholarships.categoryId, scholarship.categoryId),
+          sql`${scholarships.id} != ${scholarship.id}`
+        )
+      )
       .orderBy(sql`RANDOM()`)
       .limit(3);
     }
@@ -117,7 +120,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         title: scholarships.title,
         slug: scholarships.slug,
         deadline: scholarships.deadline,
-        thumbnailUrl: scholarships.thumbnailUrl,
         isFeatured: scholarships.isFeatured
       })
       .from(scholarships)

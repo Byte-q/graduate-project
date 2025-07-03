@@ -2,6 +2,7 @@ import { pgTable, text, serial, integer, boolean, timestamp, json, varchar, pgEn
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
+import { University } from "lucide-react";
 
 // Users Table
 export const users = pgTable("users", {
@@ -156,6 +157,12 @@ export const successStories = pgTable("success_stories", {
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),
   content: text("content").notNull(),
+  university: text("university").notNull(),
+  country: text("country").notNull(),
+  degree: text("degree").notNull(),
+  graduationYear: text("graduation_year").notNull(),
+  thumbnailUrl: text("thumbnail_url").notNull(),
+  studentName: text("student_name").notNull(),
   scholarshipName: text("scholarship_name"),
   imageUrl: text("image_url"),
   isPublished: boolean("is_published").default(true),

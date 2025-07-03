@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { db } from '@/db';
 import { successStories, type SuccessStory } from '@/shared/schema';
-import { desc, eq, like, sql } from 'drizzle-orm';
+import { desc, eq, like, sql, and } from 'drizzle-orm';
 
 interface SuccessStoriesResponse {
   stories: SuccessStory[];
@@ -46,23 +46,15 @@ export default async function handler(
     // ملاحظة: نستخدم الرؤوس التي تم تعيينها أعلاه بناءً على وجود معلمات البحث
     
     // بناء استعلام للبحث
-    let query = db.select().from(successStories);
-    
-    // إضافة شروط البحث إذا كانت موجودة
-    if (search) {
-      query = query.where(like(successStories.title, `%${search}%`));
-    }
-    
-    // عرض القصص المنشورة فقط
-    query = query.where(eq(successStories.isPublished, true));
+    const conditions = [eq(successStories.isPublished, true)];
+    if(search) conditions.push(like(successStories.title, `%${search}%`));
+    const query = db.select().from(successStories).where(and(...conditions));
     
     // الحصول على إجمالي عدد القصص التي تطابق شروط البحث
+    const countConditions = [eq(successStories.isPublished, true)];
+    if(search) countConditions.push(like(successStories.title, `%${search}%`));
     const countQuery = db.select({ count: sql<number>`count(*)` }).from(successStories)
       .where(eq(successStories.isPublished, true));
-    
-    if (search) {
-      countQuery.where(like(successStories.title, `%${search}%`));
-    }
     
     const [{ count }] = await countQuery;
     
@@ -76,10 +68,10 @@ export default async function handler(
     const formattedResults = results.map(story => ({
       ...story,
       content: story.content ? story.content.substring(0, 300) : '', // نقصر المحتوى لتحسين الأداء في القائمة
-      imageUrl: story.imageUrl || null,
-      thumbnailUrl: story.thumbnailUrl || story.imageUrl || null,
-      name: story.name || story.studentName || null,
-      studentName: story.studentName || story.name || null
+      imageUrl: story.imageUrl || '',
+      thumbnailUrl: story.thumbnailUrl || story.imageUrl || '',
+      name: story.name || story.studentName || '',
+      studentName: story.studentName || story.name || ''
     }));
     
     // حساب عدد الصفحات

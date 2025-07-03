@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { db } from '@/db';
 import { posts, type Post } from '@/shared/schema';
-import { desc, eq, like, sql } from 'drizzle-orm';
+import { desc, eq, like, sql, and } from 'drizzle-orm';
+
 
 interface PostsResponse {
   posts: Post[];
@@ -36,7 +37,7 @@ export default async function handler(
       'public, max-age=1800, s-maxage=3600, stale-while-revalidate=59'
     );
   }
-
+  
   try {
     // استخراج معلمات الاستعلام
     const page = Number(req.query.page) || 1;
@@ -46,31 +47,31 @@ export default async function handler(
     const offset = (page - 1) * limit;
     
     // بناء استعلام للبحث
-    let query = db.select().from(posts);
+    const conditions = [eq(posts.status, 'published')];
+    if(search) conditions.push(like(posts.title, `%${search}%`));
+    if(featured) conditions.push(eq(posts.isFeatured, true));
+    let query = db.select().from(posts).where(and(...conditions));
     
     // إضافة شروط البحث إذا كانت موجودة
-    if (search) {
-      query = query.where(like(posts.title, `%${search}%`));
-    }
+    // if (search) {
+    //   query = query.where(like(posts.title, `%${search}%`));
+    // }
     
-    // إضافة شرط المقالات المميزة إذا طُلب
-    if (featured) {
-      query = query.where(eq(posts.isFeatured, true));
-    }
+    // // إضافة شرط المقالات المميزة إذا طُلب
+    // if (featured) {
+    //   query = query.where(eq(posts.isFeatured, true));
+    // }
     
-    // تعيين حالة المقالات إلى "published" فقط للعرض العام
-    query = query.where(eq(posts.status, 'published'));
+    // // تعيين حالة المقالات إلى "published" فقط للعرض العام
+    // query = query.where(eq(posts.status, 'published'));
     
     // الحصول على إجمالي عدد المقالات التي تطابق شروط البحث
+    const countConditions = [eq(posts.status, 'published')];
+    if(search) countConditions.push(like(posts.title, `%${search}%`));
+    if(featured) countConditions.push(eq(posts.isFeatured, true));
+
     const countQuery = db.select({ count: sql<number>`count(*)` }).from(posts)
-      .where(eq(posts.status, 'published'));
-    
-    if (search) {
-      countQuery.where(like(posts.title, `%${search}%`));
-    }
-    if (featured) {
-      countQuery.where(eq(posts.isFeatured, true));
-    }
+    .where(and(...countConditions));
     
     const [{ count }] = await countQuery;
     

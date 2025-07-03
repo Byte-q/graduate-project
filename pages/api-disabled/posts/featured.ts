@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { db } from '@/db';
 import { posts, type Post } from '@/shared/schema';
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 
 interface FeaturedPostsResponse {
   posts: Post[];
@@ -26,8 +26,12 @@ export default async function handler(
     const featuredPosts = await db
       .select()
       .from(posts)
-      .where(eq(posts.isFeatured, true))
-      .where(eq(posts.status, 'published'))
+      .where(
+        and(
+          eq(posts.isFeatured, true),
+          eq(posts.status, 'published')
+        )
+    )
       .orderBy(desc(posts.createdAt))
       .limit(limit);
 

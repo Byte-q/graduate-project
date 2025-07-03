@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { db } from '@/db';
 import { scholarships, categories, countries, levels } from '@/shared/schema';
-import { sql, asc, desc, count } from 'drizzle-orm';
+import { sql, asc, desc, count, and } from 'drizzle-orm';
 import { safeObjectEntries, safeReduce } from '@/lib/utils';
 
 // تعريف نوع البيانات للاستجابة
@@ -170,28 +170,21 @@ export default async function handler(
     }
 
     // تطبيق جميع شروط where دفعة واحدة
-    let query = baseQuery;
-    if (whereClauses.length > 0) {
-      query = query.where(sql.join(whereClauses, sql` AND `));
-    }
+    const query = whereClauses.length > 0
+  ? baseQuery.where(and(...whereClauses))
+  : baseQuery;
     
     // تطبيق الترتيب
-    switch (sortBy) {
-      case 'newest':
-        query = query.orderBy(desc(scholarships.createdAt));
-        break;
-      case 'oldest':
-        query = query.orderBy(asc(scholarships.createdAt));
-        break;
-      case 'deadline':
-        query = query.orderBy(asc(scholarships.deadline));
-        break;
-      case 'title':
-        query = query.orderBy(asc(scholarships.title));
-        break;
-      default:
-        query = query.orderBy(desc(scholarships.createdAt));
-    }
+    let finalQuery = query
+    .orderBy(
+      sortBy === 'newest' ? desc(scholarships.createdAt) :
+      sortBy === 'oldest' ? asc(scholarships.createdAt) :
+      sortBy === 'deadline' ? asc(scholarships.deadline) :
+      sortBy === 'title' ? asc(scholarships.title) :
+      desc(scholarships.createdAt)
+    )
+    .limit(limit)
+    .offset(offset);
     
     // الحصول على إجمالي عدد النتائج
     let total = 0;
