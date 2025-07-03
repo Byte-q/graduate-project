@@ -45,7 +45,7 @@ export default async function handler(
     .limit(6);
     
     // تنفيذ الاستعلام
-    let result = [];
+    let result: any[] = [];
     try {
       result = await query;
       console.log(`API Featured: تم العثور على ${result.length} منحة دراسية مميزة`);
@@ -54,7 +54,7 @@ export default async function handler(
     }
     
     // معالجة بيانات المنح الدراسية وإضافة المعلومات المرتبطة
-    let scholarshipsWithDetails = [];
+    let scholarshipsWithDetails: any[] = [];
     
     try {
       scholarshipsWithDetails = await Promise.all(

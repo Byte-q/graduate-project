@@ -4,7 +4,7 @@ import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import MainLayout from '@/components/layout/MainLayout';
 import { ScholarshipCard } from '@/components/scholarships/ScholarshipCard';
-import { Pagination } from '@/components/ui/Pagination';
+import { Pagination } from '@/components/ui/pagination';
 import { SearchForm } from '@/components/search/SearchForm';
 
 // تعريف نوع البيانات للتصنيف
@@ -23,7 +23,7 @@ interface Scholarship {
   slug: string;
   description?: string;
   image_url?: string;
-  deadline?: string;
+  deadline?: any;
   amount?: string;
   currency?: string;
   university?: string;
@@ -160,10 +160,9 @@ export default function CategoryDetailPage({
         {totalPages > 1 && (
           <div className="mt-8">
             <Pagination
-              currentPage={currentPage}
+              page={currentPage}
               totalPages={totalPages}
-              onPageChange={handlePageChange}
-              isLoading={isLoading}
+              onChange={handlePageChange}
             />
           </div>
         )}
@@ -223,16 +222,16 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
     const scholarshipsList = await db
       .select()
       .from(scholarships)
-      .where(eq(scholarships.category_id, category.id))
+      .where(eq(scholarships.categoryId, category.id))
       .limit(limit)
       .offset(offset)
-      .orderBy(scholarships.created_at);
+      .orderBy(scholarships.createdAt);
     
     // جلب إجمالي عدد المنح للتصنيف
     const [{ count }] = await db
       .select({ count: sql`COUNT(*)`.mapWith(Number) })
       .from(scholarships)
-      .where(eq(scholarships.category_id, category.id));
+      .where(eq(scholarships.categoryId, category.id));
     
     const totalItems = count || 0;
     const totalPages = Math.ceil(totalItems / limit);
@@ -242,33 +241,36 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
       // استخراج الخصائص الأساسية
       const { 
         id, title, slug, description, amount, currency, university, department, website,
-        is_featured, is_fully_funded, country_id, level_id, category_id, requirements,
-        application_link, image_url, content, seo_title, seo_description, seo_keywords,
-        focus_keyword, is_published
+        isFeatured, isFullyFunded, countryId, levelId, categoryId, requirements,
+        applicationLink, imageUrl, content, seoTitle, seoDescription, seoKeywords,
+        focusKeyword, isPublished
       } = scholarship;
       
       // تحويل التواريخ إلى سلاسل نصية
-      const created_at = scholarship.created_at instanceof Date ? scholarship.created_at.toISOString() : 
-                        scholarship.created_at ? String(scholarship.created_at) : null;
+      const created_at = scholarship.createdAt instanceof Date ? scholarship.createdAt.toISOString() : 
+                        scholarship.createdAt ? String(scholarship.createdAt) : null;
                         
-      const updated_at = scholarship.updated_at instanceof Date ? scholarship.updated_at.toISOString() : 
-                        scholarship.updated_at ? String(scholarship.updated_at) : null;
+      const updated_at = scholarship.updatedAt instanceof Date ? scholarship.updatedAt.toISOString() : 
+                        scholarship.updatedAt ? String(scholarship.updatedAt) : null;
                         
-      const start_date = scholarship.start_date instanceof Date ? scholarship.start_date.toISOString() : 
-                        scholarship.start_date ? String(scholarship.start_date) : null;
+      const start_date = scholarship.startDate instanceof Date ? scholarship.startDate.toISOString() : 
+                        scholarship.startDate ? String(scholarship.startDate) : null;
                         
-      const end_date = scholarship.end_date instanceof Date ? scholarship.end_date.toISOString() : 
-                      scholarship.end_date ? String(scholarship.end_date) : null;
+      const end_date = scholarship.endDate instanceof Date ? scholarship.endDate.toISOString() : 
+                      scholarship.endDate ? String(scholarship.endDate) : null;
                       
-      const deadline = scholarship.deadline instanceof Date ? scholarship.deadline.toISOString() : 
-                      scholarship.deadline ? String(scholarship.deadline) : null;
+      const deadline = scholarship.deadline instanceof Date
+        ? scholarship.deadline.toISOString()
+        : scholarship.deadline
+        ? String(scholarship.deadline)
+        : null;
       
       // إرجاع كائن جديد مع جميع الخصائص محولة بشكل صحيح
       return {
         id, title, slug, description, amount, currency, university, department, website,
-        is_featured, is_fully_funded, country_id, level_id, category_id, requirements,
-        application_link, image_url, content, seo_title, seo_description, seo_keywords,
-        focus_keyword, is_published, created_at, updated_at, start_date, end_date, deadline
+        isFeatured, isFullyFunded, countryId, levelId, categoryId, requirements,
+        applicationLink, imageUrl, content, seoTitle, seoDescription, seoKeywords,
+        focusKeyword, isPublished, created_at, updated_at, start_date, end_date, deadline
       };
     });
 

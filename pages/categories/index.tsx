@@ -6,7 +6,7 @@ import MainLayout from '@/components/layout/MainLayout';
 import { ScholarshipCard } from '@/components/scholarships/ScholarshipCard';
 import { FilterComponent } from '@/components/search/FilterComponent';
 import { SearchForm } from '@/components/search/SearchForm';
-import { Pagination } from '@/components/ui/Pagination';
+import { Pagination } from '@/components/ui/pagination';
 
 // تعريف نوع البيانات للتصنيف
 interface Category {
@@ -136,10 +136,9 @@ export default function CategoriesPage({
           {totalPages > 1 && (
             <div className="mt-8">
               <Pagination
-                currentPage={currentPage}
+                page={currentPage}
                 totalPages={totalPages}
-                onPageChange={handlePageChange}
-                isLoading={isLoading}
+                onChange={handlePageChange}
               />
             </div>
           )}
@@ -157,7 +156,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     const search = query.search as string;
 
     // استيراد API handler مباشرة
-    const handler = (await import('../api/categories/index')).default;
+    const handler = (await import('../api-disabled/categories/index')).default;
     
     // محاكاة طلب واستجابة
     const req: any = {

@@ -60,7 +60,7 @@ export default async function handler(
     const offset = (page - 1) * limit;
     
     // بناء استعلام أساسي
-    let query = db.select({
+    let baseQuery = db.select({
       id: scholarships.id,
       title: scholarships.title,
       slug: scholarships.slug,
@@ -81,19 +81,21 @@ export default async function handler(
       updatedAt: scholarships.updatedAt,
       isPublished: scholarships.isPublished
     }).from(scholarships);
-    
+
+    // بناء شروط where بشكل ديناميكي
+    const whereClauses: any[] = [];
+
     // تطبيق فلتر البحث إذا كان موجودًا
     if (search) {
-      query = query.where(
+      whereClauses.push(
         sql`${scholarships.title} ILIKE ${'%' + search + '%'} OR 
         ${scholarships.description} ILIKE ${'%' + search + '%'}`
       );
     }
-    
+
     // تطبيق فلتر الفئة إذا كان موجودًا
     if (category) {
       try {
-        // استخدام تحديد حقول صريح لتجنب أي مشاكل مع الحقول غير الموجودة
         const categoryData = await db.select({
           id: categories.id,
           name: categories.name,
@@ -101,10 +103,10 @@ export default async function handler(
         }).from(categories)
           .where(sql`${categories.slug} = ${category}`)
           .limit(1);
-          
+
         if (categoryData.length > 0) {
           const categoryId = categoryData[0].id;
-          query = query.where(sql`${scholarships.categoryId} = ${categoryId}`);
+          whereClauses.push(sql`${scholarships.categoryId} = ${categoryId}`);
           console.log(`تصفية حسب الفئة: ${category} (ID: ${categoryId})`);
         } else {
           console.log(`لم يتم العثور على فئة بالاسم: ${category}`);
@@ -113,11 +115,10 @@ export default async function handler(
         console.error('Error applying category filter:', err);
       }
     }
-    
+
     // تطبيق فلتر البلد إذا كان موجودًا
     if (country) {
       try {
-        // استخدام تحديد حقول صريح لتجنب أي مشاكل مع الحقول غير الموجودة
         const countryData = await db.select({
           id: countries.id,
           name: countries.name,
@@ -125,10 +126,10 @@ export default async function handler(
         }).from(countries)
           .where(sql`${countries.slug} = ${country}`)
           .limit(1);
-          
+
         if (countryData.length > 0) {
           const countryId = countryData[0].id;
-          query = query.where(sql`${scholarships.countryId} = ${countryId}`);
+          whereClauses.push(sql`${scholarships.countryId} = ${countryId}`);
           console.log(`تصفية حسب الدولة: ${country} (ID: ${countryId})`);
         } else {
           console.log(`لم يتم العثور على دولة بالاسم: ${country}`);
@@ -137,11 +138,10 @@ export default async function handler(
         console.error('Error applying country filter:', err);
       }
     }
-    
+
     // تطبيق فلتر المستوى إذا كان موجودًا
     if (level) {
       try {
-        // استخدام تحديد حقول صريح لتجنب أي مشاكل مع الحقول غير الموجودة
         const levelData = await db.select({
           id: levels.id,
           name: levels.name,
@@ -149,10 +149,10 @@ export default async function handler(
         }).from(levels)
           .where(sql`${levels.slug} = ${level}`)
           .limit(1);
-          
+
         if (levelData.length > 0) {
           const levelId = levelData[0].id;
-          query = query.where(sql`${scholarships.levelId} = ${levelId}`);
+          whereClauses.push(sql`${scholarships.levelId} = ${levelId}`);
           console.log(`تصفية حسب المستوى: ${level} (ID: ${levelId})`);
         } else {
           console.log(`لم يتم العثور على مستوى بالاسم: ${level}`);
@@ -161,12 +161,18 @@ export default async function handler(
         console.error('Error applying level filter:', err);
       }
     }
-    
+
     // تطبيق فلتر نوع التمويل إذا كان موجودًا
     if (fundingType === 'fully-funded') {
-      query = query.where(sql`${scholarships.isFullyFunded} = true`);
+      whereClauses.push(sql`${scholarships.isFullyFunded} = true`);
     } else if (fundingType === 'partial') {
-      query = query.where(sql`${scholarships.isFullyFunded} = false`);
+      whereClauses.push(sql`${scholarships.isFullyFunded} = false`);
+    }
+
+    // تطبيق جميع شروط where دفعة واحدة
+    let query = baseQuery;
+    if (whereClauses.length > 0) {
+      query = query.where(sql.join(whereClauses, sql` AND `));
     }
     
     // تطبيق الترتيب
@@ -197,7 +203,7 @@ export default async function handler(
     }
     
     // الحصول على قائمة المنح
-    let result = [];
+    let result: any[] = [];
     try {
       result = await query.limit(limit).offset(offset);
       console.log(`API: تم العثور على ${result.length} منحة دراسية`);
@@ -206,7 +212,7 @@ export default async function handler(
     }
     
     // الحصول على خيارات الفلترة
-    let categoriesData = [];
+    let categoriesData: any[] = [];
     try {
       categoriesData = await db.select({
         id: categories.id,
@@ -217,7 +223,7 @@ export default async function handler(
       console.error('Error fetching categories:', err);
     }
     
-    let countriesData = [];
+    let countriesData: any[] = [];
     try {
       countriesData = await db.select({
         id: countries.id,
@@ -234,7 +240,7 @@ export default async function handler(
       flagUrl: null
     }));
     
-    let levelsData = [];
+    let levelsData: any[] = [];
     try {
       levelsData = await db.select({
         id: levels.id,
@@ -246,7 +252,26 @@ export default async function handler(
     }
     
     // معالجة بيانات المنح الدراسية وإضافة المعلومات المرتبطة
-    let scholarshipsWithDetails = [];
+    let scholarshipsWithDetails: Array<{
+      id: number;
+      title: string;
+      slug: string;
+      description?: string;
+      content?: string;
+      deadline?: Date | null;
+      amount?: number | null;
+      currency?: string | null;
+      university?: string | null;
+      department?: string | null;
+      isFeatured?: boolean;
+      isFullyFunded?: boolean;
+      thumbnailUrl?: string;
+      createdAt?: Date;
+      updatedAt?: Date;
+      category?: any;
+      country?: any;
+      level?: any;
+    }> = [];
     
     try {
       scholarshipsWithDetails = await Promise.all(
@@ -364,17 +389,23 @@ export default async function handler(
       console.error('Error transforming scholarships data:', transformError);
     }
     
-    // تسجيل معلومات تشخيصية
-    console.log('DEBUG - scholarshipsWithDetails.length:', scholarshipsWithDetails.length);
-    console.log('DEBUG - categoriesData.length:', categoriesData.length);
-    console.log('DEBUG - countriesWithFlag.length:', countriesWithFlag.length);
-    console.log('DEBUG - levelsData.length:', levelsData.length);
-    
+    // تسجيل معلومات تشخيصية مع حماية من undefined/null
+    console.log('DEBUG - scholarshipsWithDetails.length:', Array.isArray(scholarshipsWithDetails) ? scholarshipsWithDetails.length : 0);
+    console.log('DEBUG - categoriesData.length:', Array.isArray(categoriesData) ? categoriesData.length : 0);
+    console.log('DEBUG - countriesWithFlag.length:', Array.isArray(countriesWithFlag) ? countriesWithFlag.length : 0);
+    console.log('DEBUG - levelsData.length:', Array.isArray(levelsData) ? levelsData.length : 0);
+
+    // التأكد من أن جميع القوائم عبارة عن مصفوفات
+    const safeScholarships = Array.isArray(scholarshipsWithDetails) ? scholarshipsWithDetails : [];
+    const safeCategories = Array.isArray(categoriesData) ? categoriesData : [];
+    const safeCountries = Array.isArray(countriesWithFlag) ? countriesWithFlag : [];
+    const safeLevels = Array.isArray(levelsData) ? levelsData : [];
+
     // إنشاء وإرسال الاستجابة
     try {
       const responseData = {
         success: true,
-        scholarships: scholarshipsWithDetails,
+        scholarships: safeScholarships,
         meta: {
           pagination: {
             total,
@@ -383,18 +414,16 @@ export default async function handler(
             totalPages: Math.ceil(total / limit)
           },
           filters: {
-            categories: categoriesData,
-            countries: countriesWithFlag,
-            levels: levelsData
+            categories: safeCategories,
+            countries: safeCountries,
+            levels: safeLevels
           }
         }
       };
-      
       res.status(200).json(responseData);
       console.log('DEBUG - تم إرسال الاستجابة بنجاح');
     } catch (serializeError) {
       console.error('DEBUG - خطأ في تسلسل الاستجابة JSON:', serializeError);
-      
       // إرسال استجابة بديلة في حالة الفشل
       res.status(200).json({
         success: true,

@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import MainLayout from '@/components/layout/MainLayout';
 import { SuccessStoryCard, SuccessStoryCardSkeleton } from '@/components/success-stories/SuccessStoryCard';
 import { SearchForm } from '@/components/search/SearchForm';
-import { Pagination } from '@/components/ui/Pagination';
+import { Pagination } from '@/components/ui/pagination';
 import { SuccessStory } from '@/shared/schema';
 import { fetchWithCache } from '@/hooks/use-cached-data';
 
@@ -50,7 +50,7 @@ export default function SuccessStoriesPage({
         const response = await fetch(`/api/success-stories?${queryParams.toString()}`);
         const data = await response.json();
         
-        setStories(data.stories);
+        setStories(Array.isArray(data.stories) ? data.stories : []);
         setCurrentTotal(data.total);
         setCurrentTotalPages(data.totalPages);
       } catch (error) {
@@ -112,9 +112,9 @@ export default function SuccessStoriesPage({
 
             <div className="mt-8">
               <Pagination 
-                currentPage={currentPage}
+                page={currentPage}
                 totalPages={currentTotalPages}
-                onPageChange={handlePageChange}
+                onChange={handlePageChange}
               />
             </div>
           </>
@@ -161,7 +161,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
 
     return {
       props: {
-        initialStories: data.stories || [],
+        initialStories: Array.isArray(data.stories) ? data.stories : [],
         total: data.total || 0,
         page: data.page || 1,
         limit: data.limit || 12,

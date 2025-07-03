@@ -76,13 +76,16 @@ nextApp.prepare().then(() => {
 
   // لا حاجة لاستيراد وحدات إضافية - سنستخدم المسارات المعرفة مباشرة
 
-  // منع التكرار في المسارات
-  app.use('/server/api/server/api', (req, res) => {
-    console.log('تم اكتشاف تكرار في المسار:', req.url);
-    // إعادة توجيه إلى المسار الصحيح
-    const correctPath = `/server/api${req.url}`;
-    console.log('إعادة توجيه إلى:', correctPath);
-    res.redirect(correctPath);
+  // منع التكرار في المسارات: إصلاح شامل لمنع أي تكرار لـ /server/api في بداية المسار
+  app.use((req, res, next) => {
+    // إذا كان المسار يحتوي على تكرار /server/api في البداية، صححه
+    const duplicatePattern = /^\/server\/api(\/server\/api)+/;
+    if (duplicatePattern.test(req.url)) {
+      const fixedUrl = req.url.replace(/(\/server\/api)+/, '/server/api');
+      console.warn('تم اكتشاف تكرار في المسار:', req.url, '→ تصحيح إلى:', fixedUrl);
+      return res.redirect(fixedUrl);
+    }
+    next();
   });
 
   // إضافة طرق المصادقة
