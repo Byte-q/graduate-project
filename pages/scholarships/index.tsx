@@ -159,17 +159,18 @@ export default function ScholarshipsPage({
               </div>
               
               <FilterComponent
-                categories={filterOptions.categories}
-                countries={filterOptions.countries}
-                levels={filterOptions.levels}
+                categories={filterOptions.categories.map(c => ({ ...c, description: null }))}
+                countries={filterOptions.countries.map(c => ({ ...c, flagUrl: null }))}
+                levels={filterOptions.levels.map(l => ({ ...l, description: null }))}
                 defaultValues={{
-                  category: initialFilters?.category || undefined,
-                  country: initialFilters?.country || undefined,
-                  level: initialFilters?.level || undefined,
-                  fundingType: initialFilters?.fundingType || undefined,
+                  category: initialFilters?.category || '',
+                  country: initialFilters?.country || '',
+                  level: initialFilters?.level || '',
+                  fundingType: initialFilters?.fundingType || '',
                   sortBy: initialFilters?.sortBy || 'newest'
-                }}
-              />
+                }} onFilterChange={function (filters: Record<string, string>): void {
+                  throw new Error('Function not implemented.');
+                } }              />
             </div>
           </div>
           
