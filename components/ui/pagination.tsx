@@ -1,284 +1,256 @@
-import React from "react";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { 
-  ChevronFirst, 
-  ChevronLast, 
-  ChevronLeft, 
-  ChevronRight 
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useRouter } from 'next/router';
+import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
+import { cn } from '../../lib/utils';
+import { buttonVariants } from './button';
 
 interface PaginationProps {
-  /**
-   * الصفحة الحالية
-   */
-  page: number;
-  
-  /**
-   * إجمالي عدد الصفحات
-   */
+  currentPage: number;
   totalPages: number;
-  
-  /**
-   * وظيفة تتم استدعاؤها عند تغيير الصفحة
-   */
-  onChange?: (page: number) => void;
-  
-  /**
-   * المعلم الذي يتم استخدامه في استعلام URL (افتراضي: "page")
-   */
-  pageParam?: string;
-  
-  /**
-   * عدد الصفحات المعروضة على كل جانب من الصفحة الحالية
-   */
-  siblings?: number;
-  
-  /**
-   * عرض أزرار الانتقال إلى الصفحة الأولى والأخيرة
-   */
-  showEdges?: boolean;
-  
-  /**
-   * عرض النص بجانب أزرار الانتقال
-   */
-  showText?: boolean;
-  
-  /**
-   * استخدام المسار المطلق بدلاً من استخدام الاستعلام
-   */
-  usePath?: boolean;
-  
-  /**
-   * شكل المكون (افتراضي، بسيط، بدون خلفية)
-   */
-  variant?: 'default' | 'simple' | 'outline' | 'ghost';
-  
-  /**
-   * حجم المكون
-   */
-  size?: 'sm' | 'md' | 'lg';
-  
-  /**
-   * فصل المكون
-   */
+  onPageChange?: (page: number) => void;
   className?: string;
-  
-  /**
-   * تعطيل أو تمكين المكون بالكامل
-   */
-  disabled?: boolean;
-  
-  /**
-   * نص عنصر الصفحة السابقة
-   */
-  previousLabel?: string;
-  
-  /**
-   * نص عنصر الصفحة التالية
-   */
-  nextLabel?: string;
-  
-  /**
-   * نص عنصر الصفحة الأولى
-   */
-  firstLabel?: string;
-  
-  /**
-   * نص عنصر الصفحة الأخيرة
-   */
-  lastLabel?: string;
+  isLoading?: boolean;
+  variant?: 'default' | 'shadcn';
+  size?: 'default' | 'sm' | 'lg';
+  showText?: boolean;
 }
 
 /**
- * مكون التنقل بين الصفحات
- * يدعم التخصيص الكامل ويعمل مع wouter أو next/router
- * يدعم تصميم RTL
+ * مكون التنقل بين الصفحات المحسن
+ * يتيح للمستخدمين التنقل بين صفحات النتائج مع دعم مختلف الأشكال والأحجام
  */
 export function Pagination({
-  page = 1,
+  currentPage,
   totalPages,
-  onChange,
-  pageParam = "page",
-  siblings = 1,
-  showEdges = false,
-  showText = false,
-  usePath = false,
-  variant = "default",
-  size = "md",
-  className = "",
-  disabled = false,
-  previousLabel = "السابق",
-  nextLabel = "التالي",
-  firstLabel = "الأولى",
-  lastLabel = "الأخيرة"
+  onPageChange,
+  className = '',
+  isLoading = false,
+  variant = 'default',
+  size = 'default',
+  showText = true
 }: PaginationProps) {
   const router = useRouter();
   
-  // التأكد من أن الصفحة الحالية وإجمالي الصفحات قيم صالحة
-  const currentPage = Math.max(1, Math.min(page, totalPages));
-  const pageCount = Math.max(1, totalPages);
+  // التأكد من أن الصفحة الحالية وإجمالي الصفحات أرقام صالحة
+  const validCurrentPage = Math.max(1, Math.min(currentPage, totalPages));
+  const validTotalPages = Math.max(1, totalPages);
   
-  // إنشاء مصفوفة الصفحات المراد عرضها
-  const range = (start: number, end: number) => {
-    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-  };
-  
-  const generatePagination = () => {
-    // إذا كان عدد الصفحات أقل من 8، نعرض جميع الصفحات
-    if (pageCount <= 7) {
-      return range(1, pageCount);
+  // حساب الصفحات التي سيتم عرضها
+  const getVisiblePages = () => {
+    // إذا كان العدد الإجمالي للصفحات 7 أو أقل، اعرض جميع الصفحات
+    if (validTotalPages <= 7) {
+      return Array.from({ length: validTotalPages }, (_, i) => i + 1);
     }
     
-    // حساب نطاق الصفحات حول الصفحة الحالية
-    const leftSiblingIndex = Math.max(currentPage - siblings, 1);
-    const rightSiblingIndex = Math.min(currentPage + siblings, pageCount);
+    // إظهار الصفحات المجاورة للصفحة الحالية
+    const pages = [1]; // دائمًا إظهار الصفحة الأولى
     
-    // تحديد ما إذا كان يجب عرض النقاط الثلاث
-    const showLeftDots = leftSiblingIndex > 2;
-    const showRightDots = rightSiblingIndex < pageCount - 1;
-    
-    // عرض الصفحة الأولى والأخيرة دائما
-    if (showLeftDots && showRightDots) {
-      // عرض الصفحة الأولى والأخيرة والنطاق حول الصفحة الحالية
-      const middleRange = range(leftSiblingIndex, rightSiblingIndex);
-      return [1, '...', ...middleRange, '...', pageCount];
-    } else if (showLeftDots) {
-      // عرض الصفحة الأولى والنطاق الأخير
-      const rightRange = range(leftSiblingIndex, pageCount);
-      return [1, '...', ...rightRange];
-    } else if (showRightDots) {
-      // عرض النطاق الأول والصفحة الأخيرة
-      const leftRange = range(1, rightSiblingIndex);
-      return [...leftRange, '...', pageCount];
+    if (validCurrentPage > 3) {
+      pages.push(-1); // إضافة علامة "..."
     }
     
-    // عرض كل الصفحات (لن يتم الوصول إلى هنا عادة)
-    return range(1, pageCount);
+    // إضافة الصفحات المجاورة للصفحة الحالية
+    for (let i = Math.max(2, validCurrentPage - 1); i <= Math.min(validTotalPages - 1, validCurrentPage + 1); i++) {
+      pages.push(i);
+    }
+    
+    if (validCurrentPage < validTotalPages - 2) {
+      pages.push(-2); // إضافة علامة "..."
+    }
+    
+    if (validTotalPages > 1) {
+      pages.push(validTotalPages); // دائمًا إظهار الصفحة الأخيرة
+    }
+    
+    return pages;
   };
   
-  // إنشاء مصفوفة الصفحات
-  const pages = generatePagination();
-  
-  // التنقل إلى صفحة محددة
-  const goToPage = (targetPage: number) => {
-    if (disabled || targetPage === currentPage || targetPage < 1 || targetPage > pageCount) {
+  // الانتقال إلى صفحة معينة
+  const goToPage = (page: number) => {
+    if (page < 1 || page > validTotalPages || page === validCurrentPage || isLoading) {
       return;
     }
     
-    if (onChange) {
-      onChange(targetPage);
-    } else if (router) {
-      const query = { ...router.query, [pageParam]: targetPage.toString() };
-      
-      if (usePath) {
-        // استخدام المسار المطلق
-        const path = router.pathname.replace(`[${pageParam}]`, targetPage.toString());
-        router.push(path);
-      } else {
-        // استخدام معلمات الاستعلام
-        router.push({
-          pathname: router.pathname,
-          query
-        }, undefined, { scroll: true });
-      }
+    if (onPageChange) {
+      onPageChange(page);
+    } else {
+      // تحديث استعلام URL مع الحفاظ على باقي المعلمات
+      router.push({
+        pathname: router.pathname,
+        query: { ...router.query, page: page.toString() }
+      }, undefined, { scroll: true });
     }
   };
   
-  // أنماط الحجم
-  const sizeClasses = {
-    sm: "h-8 min-w-8 text-xs gap-1",
-    md: "h-10 min-w-10 text-sm gap-1.5",
-    lg: "h-12 min-w-12 text-base gap-2"
+  // الانتقال إلى الصفحة السابقة
+  const goToPreviousPage = () => {
+    goToPage(validCurrentPage - 1);
   };
   
-  // أنماط المتغيرات
-  const variantClasses = {
-    default: "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-750 focus:ring-2 focus:ring-primary focus:ring-opacity-50",
-    simple: "hover:bg-gray-100 dark:hover:bg-gray-800 focus:ring-2 focus:ring-primary focus:ring-opacity-50",
-    outline: "border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 focus:ring-2 focus:ring-primary focus:ring-opacity-50",
-    ghost: "hover:bg-gray-100 dark:hover:bg-gray-800 focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+  // الانتقال إلى الصفحة التالية
+  const goToNextPage = () => {
+    goToPage(validCurrentPage + 1);
   };
   
-  // فئة الزر الرئيسية
-  const baseButtonClass = cn(
-    "flex items-center justify-center rounded-md transition-colors focus:outline-none disabled:opacity-50 disabled:pointer-events-none",
-    sizeClasses[size],
-    variantClasses[variant]
-  );
+  // إذا كان هناك صفحة واحدة فقط، لا داعي لعرض التنقل
+  if (validTotalPages <= 1) {
+    return null;
+  }
   
-  // فئة الزر المحدد
-  const selectedButtonClass = cn(
-    "flex items-center justify-center rounded-md transition-colors focus:outline-none",
-    sizeClasses[size],
-    "bg-primary text-white hover:bg-primary-focus focus:ring-2 focus:ring-primary focus:ring-opacity-50"
-  );
+  const visiblePages = getVisiblePages();
   
-  // فئة الزر غير المتفاعل
-  const nonInteractiveClass = cn(
-    "flex items-center justify-center",
-    sizeClasses[size]
-  );
+  // تعيين الأحجام بناءً على خيار الحجم المحدد
+  const getSizeClass = () => {
+    switch (size) {
+      case 'sm':
+        return 'h-8 min-w-[32px]';
+      case 'lg':
+        return 'h-12 min-w-[48px]';
+      default:
+        return 'h-10 min-w-[40px]';
+    }
+  };
+  
+  // تحديد استخدام تصميم shadcn أو التصميم الافتراضي
+  if (variant === 'shadcn') {
+    const sizeClass = size === 'sm' ? 'gap-1' : 'gap-2';
+    const btnSize = size === 'sm' ? 'sm' : (size === 'lg' ? 'lg' : 'default');
+    
+    return (
+      <nav className={cn('mx-auto flex w-full justify-center mt-8', className)} aria-label="تنقل الصفحات">
+        <div className={cn('flex flex-row items-center rtl:flex-row-reverse', sizeClass)}>
+          {/* زر الصفحة السابقة */}
+          <button
+            type="button"
+            onClick={goToPreviousPage}
+            disabled={validCurrentPage === 1 || isLoading}
+            className={cn(buttonVariants({ variant: 'outline', size: btnSize }), 'gap-1', {
+              'pointer-events-none opacity-50': validCurrentPage === 1 || isLoading
+            })}
+            aria-label="الصفحة السابقة"
+          >
+            <ChevronRight className="h-4 w-4" />
+            {showText && <span>السابق</span>}
+          </button>
+          
+          {/* أزرار الصفحات */}
+          <div className={cn('flex items-center', sizeClass)}>
+            {visiblePages.map((page, index) => {
+              // إذا كانت القيمة سالبة، فهي تمثل "..."
+              if (page < 0) {
+                return (
+                  <span
+                    key={`ellipsis-${index}`}
+                    className={cn('flex h-10 w-10 items-center justify-center', {
+                      'h-8 w-8': size === 'sm',
+                      'h-12 w-12': size === 'lg'
+                    })}
+                    aria-hidden="true"
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">صفحات أخرى</span>
+                  </span>
+                );
+              }
+              
+              return (
+                <button
+                  key={page}
+                  type="button"
+                  onClick={() => goToPage(page)}
+                  disabled={page === validCurrentPage || isLoading}
+                  className={cn(
+                    buttonVariants({
+                      variant: page === validCurrentPage ? 'default' : 'outline',
+                      size: btnSize
+                    }),
+                    {
+                      'pointer-events-none': page === validCurrentPage || isLoading
+                    }
+                  )}
+                  aria-label={`الصفحة ${page}`}
+                  aria-current={page === validCurrentPage ? 'page' : undefined}
+                >
+                  {page}
+                </button>
+              );
+            })}
+          </div>
+          
+          {/* زر الصفحة التالية */}
+          <button
+            type="button"
+            onClick={goToNextPage}
+            disabled={validCurrentPage === validTotalPages || isLoading}
+            className={cn(buttonVariants({ variant: 'outline', size: btnSize }), 'gap-1', {
+              'pointer-events-none opacity-50': validCurrentPage === validTotalPages || isLoading
+            })}
+            aria-label="الصفحة التالية"
+          >
+            {showText && <span>التالي</span>}
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+        </div>
+      </nav>
+    );
+  }
+  
+  // التصميم الافتراضي
+  const sizeClass = getSizeClass();
   
   return (
-    <nav
-      role="navigation"
-      aria-label="التنقل بين الصفحات"
-      className={cn("flex flex-wrap items-center justify-center gap-1 rtl:flex-row-reverse", className)}
-    >
-      {/* زر الصفحة الأولى */}
-      {showEdges && (
-        <button
-          onClick={() => goToPage(1)}
-          disabled={disabled || currentPage === 1}
-          className={baseButtonClass}
-          aria-label="الانتقال إلى الصفحة الأولى"
-        >
-          <ChevronFirst size={16} />
-          {showText && <span className="hidden sm:inline-block">{firstLabel}</span>}
-        </button>
-      )}
-      
+    <nav className={cn('flex justify-center items-center mt-8', className)} aria-label="تنقل الصفحات">
       {/* زر الصفحة السابقة */}
       <button
-        onClick={() => goToPage(currentPage - 1)}
-        disabled={disabled || currentPage === 1}
-        className={baseButtonClass}
-        aria-label="الانتقال إلى الصفحة السابقة"
+        type="button"
+        onClick={goToPreviousPage}
+        disabled={validCurrentPage === 1 || isLoading}
+        className={cn(
+          'p-2 mx-1 rounded-md border border-gray-300 dark:border-gray-700 flex items-center justify-center',
+          {
+            'text-gray-400 dark:text-gray-600 cursor-not-allowed': validCurrentPage === 1 || isLoading,
+            'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800': !(validCurrentPage === 1 || isLoading)
+          }
+        )}
+        aria-label="الصفحة السابقة"
       >
-        <ChevronRight size={16} />
-        {showText && <span className="hidden sm:inline-block">{previousLabel}</span>}
+        <ChevronRight className="h-5 w-5" />
+        {showText && <span className="mr-1">السابق</span>}
       </button>
       
       {/* أزرار الصفحات */}
-      <div className="flex items-center gap-1">
-        {pages.map((pageItem, index) => {
-          // النقاط الثلاث
-          if (pageItem === '...') {
+      <div className="flex items-center">
+        {visiblePages.map((page, index) => {
+          // إذا كانت القيمة سالبة، فهي تمثل "..."
+          if (page < 0) {
             return (
               <span
                 key={`ellipsis-${index}`}
-                className={nonInteractiveClass}
+                className="p-2 mx-1 text-gray-500 dark:text-gray-400"
                 aria-hidden="true"
               >
-                ...
+                <MoreHorizontal className="h-5 w-5" />
               </span>
             );
           }
           
-          // أزرار الصفحات الرقمية
-          const pageNumber = pageItem as number;
           return (
             <button
-              key={pageNumber}
-              onClick={() => goToPage(pageNumber)}
-              disabled={disabled || currentPage === pageNumber}
-              className={currentPage === pageNumber ? selectedButtonClass : baseButtonClass}
-              aria-label={`الانتقال إلى الصفحة ${pageNumber}`}
-              aria-current={currentPage === pageNumber ? "page" : undefined}
+              key={page}
+              type="button"
+              onClick={() => goToPage(page)}
+              disabled={page === validCurrentPage || isLoading}
+              className={cn(
+                'mx-1 rounded-md flex items-center justify-center',
+                sizeClass,
+                {
+                  'bg-primary text-white font-medium': page === validCurrentPage,
+                  'text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800': page !== validCurrentPage
+                }
+              )}
+              aria-label={`الصفحة ${page}`}
+              aria-current={page === validCurrentPage ? 'page' : undefined}
             >
-              {pageNumber}
+              {page}
             </button>
           );
         })}
@@ -286,27 +258,24 @@ export function Pagination({
       
       {/* زر الصفحة التالية */}
       <button
-        onClick={() => goToPage(currentPage + 1)}
-        disabled={disabled || currentPage === pageCount}
-        className={baseButtonClass}
-        aria-label="الانتقال إلى الصفحة التالية"
+        type="button"
+        onClick={goToNextPage}
+        disabled={validCurrentPage === validTotalPages || isLoading}
+        className={cn(
+          'p-2 mx-1 rounded-md border border-gray-300 dark:border-gray-700 flex items-center justify-center',
+          {
+            'text-gray-400 dark:text-gray-600 cursor-not-allowed': validCurrentPage === validTotalPages || isLoading,
+            'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800': !(validCurrentPage === validTotalPages || isLoading)
+          }
+        )}
+        aria-label="الصفحة التالية"
       >
-        {showText && <span className="hidden sm:inline-block">{nextLabel}</span>}
-        <ChevronLeft size={16} />
+        {showText && <span className="ml-1">التالي</span>}
+        <ChevronLeft className="h-5 w-5" />
       </button>
-      
-      {/* زر الصفحة الأخيرة */}
-      {showEdges && (
-        <button
-          onClick={() => goToPage(pageCount)}
-          disabled={disabled || currentPage === pageCount}
-          className={baseButtonClass}
-          aria-label="الانتقال إلى الصفحة الأخيرة"
-        >
-          {showText && <span className="hidden sm:inline-block">{lastLabel}</span>}
-          <ChevronLast size={16} />
-        </button>
-      )}
     </nav>
   );
 }
+
+// نوع المكون الذي يمكن تصديره للاستخدام في الصفحات واستخدامه كمكون منفصل
+export default Pagination;
