@@ -6,7 +6,7 @@ import MainLayout from '@/components/layout/MainLayout';
 import { ScholarshipCard } from '@/components/scholarships/ScholarshipCard';
 import { FilterComponent } from '@/components/search/FilterComponent';
 import { SearchForm } from '@/components/search/SearchForm';
-import { Pagination } from '@/components/ui/pagination';
+import { Pagination } from '@/components/ui/Pagination_temp';
 
 // تعريف نوع البيانات للتصنيف
 interface Category {

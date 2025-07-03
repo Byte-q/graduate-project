@@ -4,7 +4,7 @@ import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import MainLayout from '@/components/layout/MainLayout';
 import { SearchForm } from '@/components/search/SearchForm';
-import { Pagination } from '@/components/ui/Pagination';
+import { Pagination } from '@/components/ui/Pagination_temp';
 
 // تعريف نوع البيانات للدولة
 interface Country {
