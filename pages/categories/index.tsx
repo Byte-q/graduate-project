@@ -136,9 +136,9 @@ export default function CategoriesPage({
           {totalPages > 1 && (
             <div className="mt-8">
               <Pagination
-                page={currentPage}
+                currentPage={currentPage}
                 totalPages={totalPages}
-                onChange={handlePageChange}
+                onPageChange={handlePageChange}
               />
             </div>
           )}

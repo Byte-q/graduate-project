@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  images: {
+    domains: [
+      'example.com',
+      'images.unsplash.com',
+      // Add your image domains here
+    ],
+  },
   async rewrites() {
     return [
       {
