@@ -4,7 +4,7 @@ import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import MainLayout from '@/components/layout/MainLayout';
 import { ScholarshipCard } from '@/components/scholarships/ScholarshipCard';
-import { Pagination } from '@/components/ui/Pagination_temp';
+import { Pagination } from '@/components/ui/Pagination';
 import { SearchForm } from '@/components/search/SearchForm';
 
 // تعريف نوع البيانات للتصنيف

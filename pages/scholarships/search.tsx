@@ -6,7 +6,7 @@ import MainLayout from '@/components/layout/MainLayout';
 import { SearchForm } from '@/components/search/SearchForm';
 import { FilterComponent } from '@/components/search/FilterComponent';
 import { ScholarshipCard } from '@/components/scholarships/ScholarshipCard';
-import { Pagination } from '@/components/ui/Pagination_temp';
+import { Pagination } from '@/components/ui/Pagination';
 import { Search, Filter, X } from 'lucide-react';
 import { useSiteSettings } from '@/contexts/site-settings-context';
 import { apiGet } from '@/lib/api';
