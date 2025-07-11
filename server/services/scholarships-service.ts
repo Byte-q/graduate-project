@@ -1,5 +1,5 @@
 import { ScholarshipsRepository } from "../repositories/scholarships-repository";
-import { InsertScholarship, Scholarship } from "../../shared/schema";
+import { InsertScholarship, Scholarship } from "@/shared/schema";
 
 export class ScholarshipsService {
   private repository: ScholarshipsRepository;

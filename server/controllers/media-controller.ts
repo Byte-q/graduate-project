@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { MediaService } from "../services/media-service";
 import { z } from "zod";
-import { insertMediaFileSchema } from "@shared/schema";
+import { insertMediaFileSchema } from "@/shared/schema";
 import multer from "multer";
 import * as path from "path";
 import * as fs from "fs";

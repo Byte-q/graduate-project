@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { insertLevelSchema } from "@shared/schema";
+import { insertLevelSchema } from "@/shared/schema";
 import { LevelsService } from "../services/levels-service";
 
 /**

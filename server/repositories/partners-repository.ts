@@ -1,6 +1,6 @@
-import { db } from '../../db';
-import { partners } from '../../shared/schema';
-import { InsertPartner, Partner } from '../../shared/schema';
+import { db } from '@/db';
+import { partners } from '@/shared/schema';
+import { InsertPartner, Partner } from '@/shared/schema';
 import { eq } from 'drizzle-orm';
 
 export class PartnersRepository {
@@ -80,13 +80,13 @@ export class PartnersRepository {
    */
   async listPartners(filters?: { isActive?: boolean }): Promise<Partner[]> {
     try {
-      let query = db.select().from(partners);
-      
-      if (filters?.isActive !== undefined) {
-        query = query.where(eq(partners.isActive, filters.isActive));
-      }
+      const query = db
+      .select()
+      .from(partners)
+      .where(filters?.isActive !== undefined ? eq(partners.isActive, filters.isActive) : undefined);
       
       return await query;
+      
     } catch (error) {
       console.error('Error in PartnersRepository.listPartners:', error);
       throw error;

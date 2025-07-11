@@ -1,5 +1,5 @@
 import { UsersService } from './users-service';
-import { User, InsertUser } from '../../shared/schema';
+import { User, InsertUser } from '@/shared/schema';
 
 export class AuthService {
   private usersService: UsersService;

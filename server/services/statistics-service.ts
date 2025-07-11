@@ -1,5 +1,5 @@
 import { StatisticsRepository } from '../repositories/statistics-repository';
-import { InsertStatistic, Statistic } from '../../shared/schema';
+import { InsertStatistic, Statistic } from '@/shared/schema';
 
 export class StatisticsService {
   private repository: StatisticsRepository;

@@ -1,5 +1,5 @@
 import { PostsRepository } from "../repositories/posts-repository";
-import { InsertPost, Post } from "../../shared/schema";
+import { InsertPost, Post } from "@/shared/schema";
 
 export class PostsService {
   private repository: PostsRepository;

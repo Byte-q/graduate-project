@@ -1,5 +1,5 @@
 import { CategoriesRepository } from '../repositories/categories-repository';
-import { type Category, type InsertCategory } from '@shared/schema';
+import { type Category, type InsertCategory } from '@/shared/schema';
 
 /**
  * خدمة للتعامل مع منطق الأعمال الخاص بالفئات

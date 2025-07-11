@@ -1,5 +1,5 @@
-import { db } from "../../db";
-import { scholarships, InsertScholarship, Scholarship } from "../../shared/schema";
+import { db } from "@/db";
+import { scholarships, InsertScholarship, Scholarship } from "@/shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 
 export class ScholarshipsRepository {

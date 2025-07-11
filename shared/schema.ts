@@ -118,6 +118,8 @@ export const posts = pgTable("posts", {
   metaDescription: text("meta_description"),
   metaKeywords: text("meta_keywords"),
   focusKeyword: text("focus_keyword"),
+  categoryId: integer("category_id").references(() => categories.id),
+  readTime: integer("read_time"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull()
 });
@@ -224,6 +226,7 @@ export const siteSettings = pgTable("site_settings", {
   enableDarkMode: boolean("enable_dark_mode"),
   rtlDirection: boolean("rtl_direction"),
   defaultLanguage: text("default_language"),
+  heroButtonText: text("hero_button_text"),
   enableNewsletter: boolean("enable_newsletter"),
   enableScholarshipSearch: boolean("enable_scholarship_search"),
   footerText: text("footer_text"),

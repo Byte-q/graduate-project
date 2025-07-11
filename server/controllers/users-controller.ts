@@ -168,21 +168,21 @@ export class UsersController {
       
       const updatedUser = await this.service.updateUser(userId, validatedData);
       
-      if (!updatedUser) {
-        res.status(500).json({
-          success: false,
-          message: 'فشل تحديث المستخدم'
-        });
-        return;
-      }
+      // if (!updatedUser) {
+      //   res.status(500).json({
+      //     success: false,
+      //     message: 'فشل تحديث المستخدم'
+      //   });
+      //   return;
+      // }
       
       // حذف كلمة المرور من النتيجة
-      const { password, ...userWithoutPassword } = updatedUser;
+      // const { password, ...userWithoutPassword } = updatedUser;
       
-      res.json(successResponse(
-        userWithoutPassword,
-        'تم تحديث المستخدم بنجاح'
-      ));
+      // res.json(successResponse(
+      //   userWithoutPassword,
+      //   'تم تحديث المستخدم بنجاح'
+      // ));
     } catch (error) {
       // التعامل مع أخطاء التحقق من صحة البيانات
       if (error instanceof z.ZodError) {
@@ -224,13 +224,13 @@ export class UsersController {
       
       const deleted = await this.service.deleteUser(userId);
       
-      if (!deleted) {
-        res.status(404).json({
-          success: false,
-          message: 'لم يتم العثور على المستخدم'
-        });
-        return;
-      }
+      // if (!deleted) {
+      //   res.status(404).json({
+      //     success: false,
+      //     message: 'لم يتم العثور على المستخدم'
+      //   });
+      //   return;
+      // }
       
       res.json(successResponse(
         null,

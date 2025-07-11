@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { PagesService } from "../services/pages-service";
 import { z } from "zod";
-import { insertPageSchema } from "@shared/schema";
+import { insertPageSchema } from "@/shared/schema";
 
 /**
  * وحدة التحكم بالصفحات

@@ -1,5 +1,5 @@
 import { SiteSettingsRepository } from '../repositories/site-settings-repository';
-import { InsertSiteSetting, SiteSetting } from '../../shared/schema';
+import { InsertSiteSetting, SiteSetting } from '@/shared/schema';
 
 export class SiteSettingsService {
   private repository: SiteSettingsRepository;
@@ -59,7 +59,7 @@ export class SiteSettingsService {
     ];
     
     // نسخة جديدة من البيانات لتجنب تعديل البيانات الأصلية
-    const processed = { ...data };
+    const processed: Record<string, any> = { ...data };
     
     // نعالج كل حقل منطقي
     for (const field of booleanFields) {

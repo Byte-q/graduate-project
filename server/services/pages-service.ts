@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { PagesRepository } from "../repositories/pages-repository";
-import { Page, InsertPage, insertPageSchema } from "@shared/schema";
+import { Page, InsertPage, insertPageSchema } from "@/shared/schema";
 
 /**
  * خدمة الصفحات

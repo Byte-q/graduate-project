@@ -1,5 +1,5 @@
 import { SuccessStoriesRepository } from "../repositories/success-stories-repository";
-import { InsertSuccessStory, SuccessStory } from "../../shared/schema";
+import { InsertSuccessStory, SuccessStory } from "@/shared/schema";
 
 export class SuccessStoriesService {
   private repository: SuccessStoriesRepository;

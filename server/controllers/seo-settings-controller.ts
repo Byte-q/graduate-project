@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { SeoSettingsService } from "../services/seo-settings-service";
 import { z } from "zod";
-import { insertSeoSettingsSchema } from "@shared/schema";
+import { insertSeoSettingsSchema } from "@/shared/schema";
 
 /**
  * وحدة التحكم بإعدادات SEO

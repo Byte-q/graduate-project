@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { MediaRepository } from "../repositories/media-repository";
-import { MediaFile, InsertMediaFile, insertMediaFileSchema } from "@shared/schema";
+import { MediaFile, InsertMediaFile, insertMediaFileSchema } from "@/shared/schema";
 import * as fs from "fs";
 import * as path from "path";
 import * as util from "util";

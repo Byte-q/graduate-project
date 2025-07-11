@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { PartnersService } from '../services/partners-service';
-import { insertPartnerSchema } from '@shared/schema';
+import { insertPartnerSchema } from '@/shared/schema';
 import { handleException, successResponse } from '../utils/api-helper';
 
 export class PartnersController {

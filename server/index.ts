@@ -2,14 +2,17 @@ import express, { type Request, Response, NextFunction } from "express";
 import { setupVite, serveStatic, log } from "./vite";
 import { AppConfig } from "./config/app-config";
 import path from "path";
+import authRoutes from "./routes/auth-routes";
 
 // استيراد مسارات واجهة برمجة التطبيق
 import { registerRoutes } from "./routes";
 import { setupSessionMiddleware } from "./middlewares/session-middleware";
 
 const app = express();
+app.use('/api-disabled/auth', authRoutes);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+// app.use('/auth', authRoutes);
 
 // إعداد جلسات المستخدم والمصادقة
 setupSessionMiddleware(app);

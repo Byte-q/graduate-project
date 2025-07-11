@@ -60,7 +60,7 @@ export class AuthController {
   async logout(req: Request, res: Response): Promise<void> {
     try {
       if (req.session) {
-        req.session.destroy((err) => {
+        req.session.destroy((err: any) => {
           if (err) {
             console.error('Error destroying session:', err);
             res.status(500).json({
@@ -105,7 +105,7 @@ export class AuthController {
       if (!user) {
         // حذف الجلسة إذا لم يتم العثور على المستخدم
         if (req.session) {
-          req.session.destroy((err) => {
+          req.session.destroy((err: any) => {
             if (err) {
               console.error('Error destroying session:', err);
             }

@@ -1,5 +1,5 @@
-import { db } from "../../db";
-import { statistics, InsertStatistic, Statistic } from "../../shared/schema";
+import { db } from "@/db";
+import { statistics, InsertStatistic, Statistic } from "@/shared/schema";
 import { eq } from "drizzle-orm";
 
 export class StatisticsRepository {

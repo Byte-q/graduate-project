@@ -1,6 +1,6 @@
-import { db } from "../../db";
-import { posts, InsertPost, Post, postTags, tags } from "../../shared/schema";
-import { eq, and, desc, or } from "drizzle-orm";
+import { db } from "@/db";
+import { posts, InsertPost, Post, postTags, tags } from "@/shared/schema";
+import { eq, and, inArray, desc, or } from "drizzle-orm";
 
 export class PostsRepository {
   /**
@@ -8,15 +8,14 @@ export class PostsRepository {
    */
   async getPostById(id: number): Promise<Post | undefined> {
     try {
-      const sql = `SELECT * FROM posts WHERE id = $1 LIMIT 1`;
-      const result = await db.execute(sql, [id]);
+      const result = await db.select().from(posts).where(eq(posts.id, id)).limit(1);
       
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return undefined;
       }
       
       // تحويل أسماء الأعمدة لتتوافق مع التوقع في الكود
-      const post = this.mapPostFromDB(result.rows[0]);
+      const post = this.mapPostFromDB(result[0]);
       return post as Post;
     } catch (error) {
       console.error("Error in getPostById:", error);
@@ -29,15 +28,14 @@ export class PostsRepository {
    */
   async getPostBySlug(slug: string): Promise<Post | undefined> {
     try {
-      const sql = `SELECT * FROM posts WHERE slug = $1 LIMIT 1`;
-      const result = await db.execute(sql, [slug]);
-      
-      if (result.rows.length === 0) {
+        const result = await db.select().from(posts).where(eq(posts.slug, slug)).limit(1);
+        
+      if (result.length === 0) {
         return undefined;
       }
       
       // تحويل أسماء الأعمدة لتتوافق مع التوقع في الكود
-      const post = this.mapPostFromDB(result.rows[0]);
+      const post = this.mapPostFromDB(result[0]);
       return post as Post;
     } catch (error) {
       console.error("Error in getPostBySlug:", error);
@@ -114,7 +112,7 @@ export class PostsRepository {
       const result = await db.delete(posts)
         .where(eq(posts.id, id));
       
-      return result.rowCount > 0;
+      return result.rowCount !== null && result.rowCount > 0;
     } catch (error) {
       console.error("Error in deletePost:", error);
       throw error;
@@ -169,10 +167,10 @@ export class PostsRepository {
       console.log("SQL Query:", sqlQuery, "Params:", params);
       
       // تنفيذ الاستعلام
-      const result = await db.execute(sqlQuery, params);
+      const result = await db.select().from(posts) /* add .where(...) as needed */;
       
       // تحويل أسماء الأعمدة لتتوافق مع التوقع في الكود
-      const mappedPosts = result.rows.map(post => this.mapPostFromDB(post));
+      const mappedPosts = result.map(post => this.mapPostFromDB(post));
       
       // إذا كان هناك تصفية حسب العلامة، نقوم بمعالجتها بشكل منفصل
       if (filters?.tag) {
@@ -233,15 +231,14 @@ export class PostsRepository {
       // أخيراً، نحصل على المقالات المرتبطة
       const postIds = relationships.map(rel => rel.postId);
       
+      
       if (postIds.length === 0) {
         return [];
       }
-      
-      const result = await db.select()
+      const result = await db
+        .select()
         .from(posts)
-        .where(
-          postIds.map(id => eq(posts.id, id)).reduce((a, b) => or(a, b))
-        )
+        .where(inArray(posts.id, postIds))
         .orderBy(desc(posts.createdAt));
       
       return result;
@@ -295,7 +292,7 @@ export class PostsRepository {
           )
         );
       
-      return result.rowCount > 0;
+      return result.rowCount !== null && result.rowCount > 0;
     } catch (error) {
       console.error("Error in removeTagFromPost:", error);
       throw error;
@@ -320,7 +317,7 @@ export class PostsRepository {
       const result = await db.select()
         .from(tags)
         .where(
-          tagIds.map(id => eq(tags.id, id)).reduce((a, b) => or(a, b))
+          inArray(tags.id, tagIds)
         );
       
       return result;

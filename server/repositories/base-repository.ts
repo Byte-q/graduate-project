@@ -1,15 +1,15 @@
 import { db } from "../db";
-import { eq } from "drizzle-orm";
-import { Table } from 'drizzle-orm/pg-core';
+import { eq, and } from "drizzle-orm";
+import { PgTable } from 'drizzle-orm/pg-core';
 
 /**
  * Repository أساسي يوفر عمليات CRUD العامة
  */
 export class BaseRepository<T, InsertT> {
-  protected table: Table;
+  protected table: PgTable;
   protected idColumn: any;
 
-  constructor(table: Table, idColumn: any) {
+  constructor(table: PgTable, idColumn: any) {
     this.table = table;
     this.idColumn = idColumn;
   }
@@ -21,13 +21,15 @@ export class BaseRepository<T, InsertT> {
     let query = db.select().from(this.table);
 
     // تطبيق الفلاتر إذا تم تمريرها
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && this.table[key]) {
-        query = query.where(eq(this.table[key], value));
-      }
-    });
+    const conditions = Object.entries(filters)
+    .filter(([key, value]) => value !== undefined && (this.table as any)[key])
+    .map(([key, value]) => eq((this.table as any)[key], value));
 
-    return query as Promise<T[]>;
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+
+  return query as Promise<T[]>;
   }
 
   /**

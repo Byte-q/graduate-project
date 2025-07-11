@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: [
+    remotePatterns: [
       'example.com',
       'images.unsplash.com',
       // Add your image domains here

@@ -4,7 +4,7 @@ import fs from 'fs';
 import { AppConfig } from '../config/app-config';
 
 // التأكد من وجود مجلد التحميل
-const uploadPath = AppConfig.upload.path;
+const uploadPath = AppConfig.server.uploadsDir;
 if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true });
 }
@@ -24,7 +24,7 @@ const storage = multer.diskStorage({
 
 // التحقق من نوع الملف
 const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  const allowedTypes = AppConfig.upload.allowedTypes;
+  const allowedTypes = AppConfig.server.allowedTypes;
   
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
@@ -38,6 +38,6 @@ export const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: AppConfig.upload.maxSize
+    fileSize: AppConfig.server.maxSize
   }
 });

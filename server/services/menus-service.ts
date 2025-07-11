@@ -6,7 +6,7 @@ import {
   MenuItem,
   insertMenuSchema,
   insertMenuItemSchema
-} from "@shared/schema";
+} from "@/shared/schema";
 import { z } from "zod";
 
 /**

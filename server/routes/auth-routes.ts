@@ -2,10 +2,10 @@ import { Router, Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import { z } from 'zod';
 import { AuthService } from '../services/auth-service';
-import { insertUserSchema } from '../../shared/schema';
+import { insertUserSchema } from '@/shared/schema';
 import { handleException, successResponse } from '../utils/api-helper';
 
-const router = Router();
+const router= Router();
 const authService = new AuthService();
 
 // تسجيل الدخول
@@ -95,7 +95,7 @@ router.post('/logout', (req: Request, res: Response) => {
 });
 
 // الحصول على معلومات المستخدم الحالي
-router.get('/me', (req: Request, res: Response) => {
+router.get('/me', (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).json({
       success: false,

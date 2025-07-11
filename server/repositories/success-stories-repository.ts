@@ -1,5 +1,5 @@
-import { db } from "../../db";
-import { successStories, InsertSuccessStory, SuccessStory } from "../../shared/schema";
+import { db } from "@/db";
+import { successStories, InsertSuccessStory, SuccessStory } from "@/shared/schema";
 import { eq, desc } from "drizzle-orm";
 
 export class SuccessStoriesRepository {

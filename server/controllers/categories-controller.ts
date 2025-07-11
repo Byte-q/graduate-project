@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { insertCategorySchema } from "@shared/schema";
+import { insertCategorySchema } from "@/shared/schema";
 import { CategoriesService } from "../services/categories-service";
 
 /**

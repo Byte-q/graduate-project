@@ -4,7 +4,7 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import MemoryStore from 'memorystore';
 import { db } from '../../db/index';
-import { users } from '@shared/schema';
+import { users } from '@/shared/schema';
 
 /**
  * إعداد جلسات المستخدم والمصادقة باستخدام Passport

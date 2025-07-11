@@ -8,6 +8,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 const { Pool } = require('pg');
 
+
 // Load environment variables
 dotenv.config();
 
@@ -910,6 +911,6 @@ nextApp.prepare().then(() => {
   // بدء تشغيل الخادم
   app.listen(port, hostname, (err) => {
     if (err) throw err;
-    console.log(`> Ready on http://${hostname}:${port}`);
+    console.log(`> Ready on http://${hostname}:${process.env.port}`);
   });
 });

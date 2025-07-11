@@ -1,6 +1,6 @@
-import { db } from '../../db';
-import { siteSettings } from '../../shared/schema';
-import { InsertSiteSetting, SiteSetting } from '../../shared/schema';
+import { db } from '@/db';
+import { siteSettings } from '@/shared/schema';
+import { InsertSiteSetting, SiteSetting } from '@/shared/schema';
 import { eq } from 'drizzle-orm';
 
 export class SiteSettingsRepository {

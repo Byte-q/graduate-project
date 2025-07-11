@@ -65,7 +65,7 @@ export class ScholarshipsController {
       
       if (cachedData && (Date.now() - cachedData.timestamp < cacheTime)) {
         console.log("Using cached featured scholarships:", cachedData.data.length);
-        return res.json(successResponse(cachedData.data));
+        res.json(successResponse(cachedData.data));
       }
       
       // Si no hay caché, obtener datos frescos
@@ -79,11 +79,11 @@ export class ScholarshipsController {
       });
       
       // استخدام تنسيق استجابة موحد
-      return res.json(successResponse(scholarships || []));
+      res.json(successResponse(scholarships || []));
     } catch (error) {
       console.error("Error in getFeaturedScholarships:", error);
       // Always return a valid response even in case of error
-      return res.status(500).json(successResponse([], "Error loading featured scholarships"));
+      res.status(500).json(successResponse([], "Error loading featured scholarships"));
     }
   }
 

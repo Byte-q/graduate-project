@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { PostsService } from '../services/posts-service';
-import { insertPostSchema } from '../../shared/schema';
+import { insertPostSchema } from '@/shared/schema';
 import { handleException, successResponse } from '../utils/api-helper';
 import { z } from 'zod';
 
@@ -53,7 +53,7 @@ export class PostsController {
       
       if (cachedData && (Date.now() - cachedData.timestamp < cacheTime)) {
         console.log("Using cached posts:", cachedData.data.length);
-        return res.json(successResponse(cachedData.data));
+        res.json(successResponse(cachedData.data));
       }
       
       // Si no hay caché, obtener datos frescos
@@ -66,11 +66,11 @@ export class PostsController {
         timestamp: Date.now()
       });
       
-      return res.json(successResponse(posts || []));
+      res.json(successResponse(posts || []));
     } catch (error) {
       console.error("Error in posts controller listPosts:", error);
       // Always return a valid response even in case of error
-      return res.status(500).json(successResponse([], "Error loading posts"));
+      res.status(500).json(successResponse([], "Error loading posts"));
     }
   }
 

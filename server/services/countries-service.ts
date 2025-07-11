@@ -1,5 +1,5 @@
 import { CountriesRepository } from '../repositories/countries-repository';
-import { type Country, type InsertCountry } from '@shared/schema';
+import { type Country, type InsertCountry } from '@/shared/schema';
 
 /**
  * خدمة للتعامل مع منطق الأعمال الخاص بالدول

@@ -1,6 +1,6 @@
-import { db } from '../../db';
-import { users } from '../../shared/schema';
-import { User } from '../../shared/schema';
+import { db } from '@/db';
+import { users } from '@/shared/schema';
+import { User } from '@/shared/schema';
 import { eq } from 'drizzle-orm';
 
 export class AuthRepository {

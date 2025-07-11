@@ -1,5 +1,5 @@
 import { PartnersRepository } from '../repositories/partners-repository';
-import { Partner, InsertPartner } from '@shared/schema';
+import { Partner, InsertPartner } from '@/shared/schema';
 
 export class PartnersService {
   private repository: PartnersRepository;

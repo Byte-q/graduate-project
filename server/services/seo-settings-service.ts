@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { SeoSettingsRepository } from "../repositories/seo-settings-repository";
-import { SeoSetting, InsertSeoSetting, insertSeoSettingsSchema } from "@shared/schema";
+import { SeoSetting, InsertSeoSetting, insertSeoSettingsSchema } from "@/shared/schema";
 
 /**
  * خدمة إعدادات SEO

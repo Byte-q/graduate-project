@@ -1,5 +1,5 @@
 import { LevelsRepository } from '../repositories/levels-repository';
-import { type Level, type InsertLevel } from '@shared/schema';
+import { type Level, type InsertLevel } from '@/shared/schema';
 
 /**
  * خدمة للتعامل مع منطق الأعمال الخاص بالمستويات

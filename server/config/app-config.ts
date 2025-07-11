@@ -9,7 +9,9 @@ export const AppConfig = {
     sessionSecret: process.env.SESSION_SECRET || 'fullsco-secret-key',
     uploadsDir: './uploads',
     jwtSecret: process.env.JWT_SECRET || 'fullsco-jwt-secret',
-    jwtExpiration: '24h'
+    jwtExpiration: '24h',
+    maxSize: 1024 * 1024 * 5, // 5MB
+    allowedTypes: ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
   },
   database: {
     url: process.env.DATABASE_URL,

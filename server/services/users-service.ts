@@ -1,8 +1,14 @@
 import { UsersRepository } from '../repositories/users-repository';
-import { User, InsertUser } from '../../shared/schema';
-import bcrypt from 'bcrypt';
+import { User, InsertUser } from '@/shared/schema';
+import bcrypt from 'bcryptjs';
 
 export class UsersService {
+  updateUser(userId: number, validatedData: { username?: string | undefined; password?: string | undefined; email?: string | undefined; fullName?: string | undefined; role?: string | undefined; }) {
+    throw new Error('Method not implemented.');
+  }
+  deleteUser(userId: number) {
+    throw new Error('Method not implemented.');
+  }
   private repository: UsersRepository;
 
   constructor() {

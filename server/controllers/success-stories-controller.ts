@@ -41,7 +41,7 @@ export class SuccessStoriesController {
       
       if (cachedData && (Date.now() - cachedData.timestamp < cacheTime)) {
         console.log("Using cached success stories:", cachedData.data.length);
-        return res.json(successResponse(cachedData.data));
+        res.json(successResponse(cachedData.data));
       }
       
       // إذا لم يكن هناك تخزين مؤقت، جلب بيانات جديدة

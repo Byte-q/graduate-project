@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { SubscribersService } from "../services/subscribers-service";
 import { z } from "zod";
-import { insertSubscriberSchema } from "@shared/schema";
+import { insertSubscriberSchema } from "@/shared/schema";
 
 /**
  * وحدة التحكم بالمشتركين

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { SubscribersRepository } from "../repositories/subscribers-repository";
-import { Subscriber, InsertSubscriber, insertSubscriberSchema } from "@shared/schema";
+import { Subscriber, InsertSubscriber, insertSubscriberSchema } from "@/shared/schema";
 
 /**
  * خدمة المشتركين

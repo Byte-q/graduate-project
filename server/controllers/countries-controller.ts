@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { insertCountrySchema } from "@shared/schema";
+import { insertCountrySchema } from "@/shared/schema";
 import { CountriesService } from "../services/countries-service";
 
 /**
