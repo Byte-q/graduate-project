@@ -1,3 +1,8 @@
+// Server-only guard to prevent client-side bundling
+if (typeof window !== 'undefined') {
+  throw new Error('This module can only be used on the server side');
+}
+
 import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "@/shared/schema";

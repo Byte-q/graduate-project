@@ -4,9 +4,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar, User, ArrowRight, GraduationCap, MapPin } from 'lucide-react';
 import MainLayout from '@/components/layout/MainLayout';
-import { db } from '@/server/db';
-import { successStories } from '@/shared/schema';
-import { eq } from 'drizzle-orm';
 import { formatDate } from '@/lib/utils';
 
 interface SuccessStoryDetailsProps {
@@ -161,7 +158,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
   
   try {
-    // استراتيجية جديدة: استخدام قاعدة البيانات مباشرة لتجنب الطلبات المتكررة للـ API
+    // Dynamic import for database to avoid client-side bundling
+    const { db } = await import('@/server/db');
+    const { successStories } = await import('@/shared/schema');
+    const { eq } = await import('drizzle-orm');
+    
     console.log(`Direct database query for success story: ${slug}`);
     
     // استعلام لقصة النجاح بناءً على الاسم المستعار (slug)

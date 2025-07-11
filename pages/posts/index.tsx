@@ -4,9 +4,6 @@ import Image from 'next/image';
 import { Search } from 'lucide-react';
 import MainLayout from '@/components/layout/MainLayout';
 import { PostCard } from '@/components/posts/PostCard';
-import { db } from '@/server/db';
-import { posts, categories } from '@/shared/schema';
-import { desc, eq, like, sql } from 'drizzle-orm';
 import { apiGet } from '@/lib/api';
 
 interface Post {
