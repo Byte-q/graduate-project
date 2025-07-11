@@ -3,10 +3,14 @@ const nextConfig = {
   reactStrictMode: true,
   images: {
     remotePatterns: [
-      'example.com',
-      'images.unsplash.com',
-      // Add your image domains here
-    ],
+      {
+        protocol: 'https',
+        hostname: 'example.com',
+        port: '', // optional
+        pathname: '/path/**', // optional
+      },
+      // more patterns...
+    ]
   },
   async rewrites() {
     return [
