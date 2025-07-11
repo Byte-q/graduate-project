@@ -31,6 +31,7 @@ interface Post {
   metaTitle: string | null;
   metaDescription: string | null;
   metaKeywords: string | null;
+  readTime: number | null;
 }
 
 interface Category {
@@ -249,10 +250,16 @@ export default function PostsPage({
                       key={post.id}
                       post={{
                         ...post,
-                        authorId: post.authorId ?? 0, // Ensure authorId is always a number
+                        authorId: post.authorId ?? 0,
                         createdAt: typeof post.createdAt === 'string' ? new Date(post.createdAt) : post.createdAt,
                         updatedAt: typeof post.updatedAt === 'string' ? new Date(post.updatedAt) : post.updatedAt,
-                        views: post.views !== undefined ? post.views : null, // Ensure views is number or null
+                        views: post.views !== undefined ? post.views : null,
+                        categoryId: post.categoryId ?? null,
+                        readTime: post.readTime ?? null,
+                        focusKeyword: post.focusKeyword ?? null,
+                        metaTitle: post.metaTitle ?? null,
+                        metaDescription: post.metaDescription ?? null,
+                        metaKeywords: post.metaKeywords ?? null,
                       }}
                     />
                   ))}
