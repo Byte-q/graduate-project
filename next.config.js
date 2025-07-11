@@ -8,6 +8,7 @@ const nextConfig = {
         net: false,
         tls: false,
         pg: false,
+        'pg-connection-string': false,
       };
     }
     return config;
