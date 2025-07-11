@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { db } from '@/server/db';
 import { contactMessages, insertContactMessageSchema } from '@/shared/schema';
 import { z } from 'zod';
 
@@ -16,8 +15,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method Not Allowed' });
   }
-
+  
   try {
+    // إستيراد قاعدة البيانات
+    const { db } = await import('@/server/db');
     // التحقق من بيانات الطلب
     const validatedData = contactFormSchema.parse(req.body);
 
