@@ -11,8 +11,7 @@ export class ScholarshipsRepository {
       console.log("Getting scholarship by id:", id);
       
       const result = await db.execute(
-        `SELECT * FROM scholarships WHERE id = $1 LIMIT 1`,
-        [id]
+        `SELECT * FROM scholarships WHERE id = ${id} LIMIT 1`
       );
       
       if (result.rows && result.rows.length > 0) {
@@ -35,14 +34,13 @@ export class ScholarshipsRepository {
     try {
       console.log("Getting scholarship by slug:", slug);
       
-      const result = await db.execute(
-        `SELECT * FROM scholarships WHERE slug = $1 LIMIT 1`,
-        [slug]
-      );
+      const result = await db.select().from(scholarships)
+        .where(eq(scholarships.slug, slug))
+        .limit(1);
       
-      if (result.rows && result.rows.length > 0) {
-        console.log("Found scholarship with title:", result.rows[0].title);
-        return result.rows[0] as Scholarship;
+      if (result && result.length > 0) {
+        console.log("Found scholarship with title:", result[0].title);
+        return result[0] as Scholarship;
       } else {
         console.log("No scholarship found with slug:", slug);
         return undefined;
@@ -91,7 +89,7 @@ export class ScholarshipsRepository {
     try {
       const result = await db.delete(scholarships)
         .where(eq(scholarships.id, id));
-      return result.rowCount > 0;
+      return result.rowCount !== null && result.rowCount > 0;
     } catch (error) {
       console.error("Error in deleteScholarship:", error);
       throw error;
@@ -132,15 +130,10 @@ export class ScholarshipsRepository {
         conditions.push(eq(scholarships.isPublished, filters.isPublished));
       }
       
-      let query = db.select().from(scholarships);
-      
-      if (conditions.length > 0) {
-        query = query.where(and(...conditions));
-      }
-      
-      // ترتيب النتائج حسب تاريخ الإنشاء، الأحدث أولاً
-      query = query.orderBy(desc(scholarships.createdAt));
-      
+      const query = conditions.length > 0
+        ? db.select().from(scholarships).where(and(...conditions)).orderBy(desc(scholarships.createdAt))
+        : db.select().from(scholarships).orderBy(desc(scholarships.createdAt));
+
       const result = await query;
       return result;
     } catch (error) {
@@ -171,7 +164,7 @@ export class ScholarshipsRepository {
         console.log("No featured scholarships found");
       }
       
-      return result.rows || [];
+      return result.rows as Scholarship[];
     } catch (error) {
       console.error("Error in getFeaturedScholarships:", error);
       // نعيد مصفوفة فارغة بدلاً من رمي الخطأ
@@ -199,10 +192,9 @@ export class ScholarshipsRepository {
         const currentViews = typeof scholarship.views === 'number' ? scholarship.views : 0;
         
         // تنفيذ استعلام التحديث
-        await db.execute(
-          `UPDATE scholarships SET views = $1 WHERE id = $2`,
-          [currentViews + 1, id]
-        );
+        await db.update(scholarships)
+          .set({ views: currentViews + 1 })
+          .where(eq(scholarships.id, id));
         
         return true;
       } catch (viewsError) {

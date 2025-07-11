@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { successStories, InsertSuccessStory, SuccessStory } from "@/shared/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 export class SuccessStoriesRepository {
   /**
@@ -8,15 +8,16 @@ export class SuccessStoriesRepository {
    */
   async getSuccessStoryById(id: number): Promise<SuccessStory | undefined> {
     try {
-      const sql = `SELECT * FROM success_stories WHERE id = $1 LIMIT 1`;
-      const result = await db.execute(sql, [id]);
+      const result = await db.select().from(successStories)
+      .where(eq(successStories.id, id))
+      .limit(1);
       
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return undefined;
       }
       
       // تحويل أسماء الأعمدة لتتوافق مع التوقع في الكود
-      const story = this.mapSuccessStoryFromDB(result.rows[0]);
+      const story = this.mapSuccessStoryFromDB(result[0]);
       return story as SuccessStory;
     } catch (error) {
       console.error("Error in getSuccessStoryById:", error);
@@ -29,15 +30,16 @@ export class SuccessStoriesRepository {
    */
   async getSuccessStoryBySlug(slug: string): Promise<SuccessStory | undefined> {
     try {
-      const sql = `SELECT * FROM success_stories WHERE slug = $1 LIMIT 1`;
-      const result = await db.execute(sql, [slug]);
+      const result = await db.select().from(successStories)
+      .where(eq(successStories.slug, slug))
+      .limit(1);
       
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return undefined;
       }
       
       // تحويل أسماء الأعمدة لتتوافق مع التوقع في الكود
-      const story = this.mapSuccessStoryFromDB(result.rows[0]);
+      const story = this.mapSuccessStoryFromDB(result[0]);
       return story as SuccessStory;
     } catch (error) {
       console.error("Error in getSuccessStoryBySlug:", error);
@@ -142,11 +144,12 @@ export class SuccessStoriesRepository {
       console.log("Success Stories SQL Query:", sqlQuery, "Params:", params);
       
       // تنفيذ الاستعلام
-      const result = await db.execute(sqlQuery, params);
-      console.log("Success stories result:", result.rows.length);
+      const result = await db.select().from(successStories)
+      .where(and(...params));
+      console.log("Success stories result:", result.length);
       
       // تحويل أسماء الأعمدة لتتوافق مع التوقع في الكود
-      const mappedStories = result.rows.map(story => this.mapSuccessStoryFromDB(story));
+      const mappedStories = result.map(story => this.mapSuccessStoryFromDB(story));
       
       return mappedStories as SuccessStory[];
     } catch (error) {

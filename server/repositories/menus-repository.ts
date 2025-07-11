@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { eq, sql, isNull } from "drizzle-orm";
+import { eq, sql, isNull, and } from "drizzle-orm";
 import { 
   menus, 
   menuItems,
@@ -7,7 +7,7 @@ import {
   InsertMenuItem,
   Menu,
   MenuItem
-} from "@shared/schema";
+} from "@/shared/schema";
 
 /**
  * فئة مستودع القوائم
@@ -104,7 +104,7 @@ export class MenusRepository {
       const result = await db.delete(menus)
         .where(eq(menus.id, id));
       
-      return result.rowCount > 0;
+      return result.rowCount !== null && result.rowCount > 0;
     } catch (error) {
       console.error("Error in deleteMenu:", error);
       throw error;
@@ -177,7 +177,7 @@ export class MenusRepository {
     try {
       const result = await db.delete(menuItems)
         .where(eq(menuItems.id, id));
-      return result.rowCount > 0;
+      return result.rowCount !== null && result.rowCount > 0;
     } catch (error) {
       console.error("Error in deleteMenuItem:", error);
       throw error;
@@ -195,16 +195,22 @@ export class MenusRepository {
       
       if (parentId === null) {
         // عناصر القائمة الرئيسية (parent_id is NULL)
-        query = query.where(sql`${menuItems.parentId} IS NULL`);
+        query = db.select().from(menuItems)
+          .where(and(
+            eq(menuItems.menuId, menuId),
+            sql`${menuItems.parentId} IS NULL`
+          ))
       } else if (parentId !== undefined) {
         // عناصر القائمة الفرعية لـ parent_id محدد
-        query = query.where(eq(menuItems.parentId, parentId));
+        query = db.select().from(menuItems)
+          .where(and(
+            eq(menuItems.menuId, menuId),
+            eq(menuItems.parentId, parentId)
+          ))
       }
 
       // ترتيب العناصر حسب الترتيب
-      query = query.orderBy(menuItems.order);
-      
-      const result = await query;
+      const result = await query.orderBy(menuItems.order);
       return result;
     } catch (error) {
       console.error("Error in listMenuItems:", error);

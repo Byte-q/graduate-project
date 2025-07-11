@@ -3,7 +3,7 @@ import {
   categories,
   type Category, 
   type InsertCategory 
-} from '@shared/schema';
+} from '@/shared/schema';
 import { eq } from 'drizzle-orm';
 
 /**

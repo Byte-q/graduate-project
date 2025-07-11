@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { eq } from "drizzle-orm";
-import { SeoSetting, InsertSeoSetting, seoSettings } from "@shared/schema";
+import { SeoSetting, InsertSeoSetting, seoSettings } from "@/shared/schema";
 
 /**
  * فئة مستودع إعدادات SEO

@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { eq, like, and, sql } from "drizzle-orm";
-import { MediaFile, InsertMediaFile, mediaFiles } from "@shared/schema";
+import { MediaFile, InsertMediaFile, mediaFiles } from "@/shared/schema";
 
 /**
  * فئة مستودع الوسائط
@@ -93,17 +93,12 @@ export class MediaRepository {
    */
   async listMediaFiles(filters?: { mimeType?: string }): Promise<MediaFile[]> {
     try {
-      let query = db.select().from(mediaFiles);
-      
-      // إضافة الفلاتر إذا وجدت
-      if (filters && filters.mimeType) {
-        query = query.where(like(mediaFiles.mimeType, `${filters.mimeType}%`));
-      }
-      
-      // ترتيب الملفات حسب تاريخ الإنشاء (الأحدث أولاً)
-      query = query.orderBy(sql`${mediaFiles.createdAt} DESC`);
-      
-      const result = await query;
+      const baseQuery = db.select().from(mediaFiles);
+      const query = (filters && filters.mimeType)
+        ? baseQuery.where(like(mediaFiles.mimeType, `${filters.mimeType}%`))
+        : baseQuery;
+
+      const result = await query.orderBy(sql`${mediaFiles.createdAt} DESC`);
       return result;
     } catch (error) {
       console.error("Error in listMediaFiles:", error);

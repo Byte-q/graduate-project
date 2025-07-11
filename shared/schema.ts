@@ -84,6 +84,7 @@ export const scholarships = pgTable("scholarships", {
   requirements: text("requirements"),
   applicationLink: text("application_link"),
   imageUrl: text("image_url"),
+  views: integer("views").default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull()
 });

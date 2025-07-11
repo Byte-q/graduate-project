@@ -18,18 +18,16 @@ export class BaseRepository<T, InsertT> {
    * الحصول على كافة السجلات
    */
   async findAll(filters: Record<string, any> = {}): Promise<T[]> {
-    let query = db.select().from(this.table);
-
-    // تطبيق الفلاتر إذا تم تمريرها
+    const baseQuery = db.select().from(this.table);
     const conditions = Object.entries(filters)
-    .filter(([key, value]) => value !== undefined && (this.table as any)[key])
-    .map(([key, value]) => eq((this.table as any)[key], value));
+      .filter(([key, value]) => value !== undefined && (this.table as any)[key])
+      .map(([key, value]) => eq((this.table as any)[key], value));
 
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions));
-    }
+    const query = conditions.length > 0
+      ? baseQuery.where(and(...conditions))
+      : baseQuery;
 
-  return query as Promise<T[]>;
+    return query as Promise<T[]>;
   }
 
   /**

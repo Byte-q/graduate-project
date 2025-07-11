@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { eq } from "drizzle-orm";
-import { Subscriber, InsertSubscriber, subscribers } from "@shared/schema";
+import { Subscriber, InsertSubscriber, subscribers } from "@/shared/schema";
 
 /**
  * فئة مستودع المشتركين

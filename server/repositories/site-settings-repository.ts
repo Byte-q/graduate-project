@@ -28,8 +28,13 @@ export class SiteSettingsRepository {
       const existingSettings = await this.getSiteSettings();
       
       if (!existingSettings) {
+        // Provide default values for required fields
+      const defaultData: InsertSiteSetting = {
+        siteName: data.siteName || 'Default Site Name',
+        ...data
+      };
         // إذا لم تكن هناك إعدادات، قم بإنشائها
-        const [newSettings] = await db.insert(siteSettings).values(data).returning();
+        const [newSettings] = await db.insert(siteSettings).values(defaultData).returning();
         return newSettings;
       }
       

@@ -1,6 +1,6 @@
 import { db } from "../db";
-import { eq, sql } from "drizzle-orm";
-import { Page, InsertPage, pages } from "@shared/schema";
+import { eq, sql, and } from "drizzle-orm";
+import { Page, InsertPage, pages } from "@/shared/schema";
 
 /**
  * فئة مستودع الصفحات
@@ -93,23 +93,23 @@ export class PagesRepository {
       
       // إضافة الفلاتر إذا وجدت
       if (filters) {
+        const conditions = [];
         if (filters.isPublished !== undefined) {
-          query = query.where(eq(pages.isPublished, filters.isPublished));
+          conditions.push(eq(pages.isPublished, filters.isPublished));
         }
         
         if (filters.showInHeader !== undefined) {
-          query = query.where(eq(pages.showInHeader, filters.showInHeader));
+          conditions.push(eq(pages.showInHeader, filters.showInHeader));
         }
         
         if (filters.showInFooter !== undefined) {
-          query = query.where(eq(pages.showInFooter, filters.showInFooter));
+          conditions.push(eq(pages.showInFooter, filters.showInFooter));
         }
       }
       
       // ترتيب الصفحات حسب تاريخ التحديث
-      query = query.orderBy(sql`${pages.updatedAt} DESC`);
       
-      const result = await query;
+      const result = await query.orderBy(sql`${pages.updatedAt} DESC`);
       return result;
     } catch (error) {
       console.error("Error in listPages:", error);

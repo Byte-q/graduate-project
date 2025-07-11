@@ -57,7 +57,7 @@ export class UsersRepository {
     const result = await db.delete(users)
       .where(eq(users.id, id));
     
-    return result.rowCount > 0;
+    return result.rowCount !== null && result.rowCount > 0;
   }
 
   /**

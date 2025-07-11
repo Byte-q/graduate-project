@@ -3,7 +3,7 @@ import {
   levels,
   type Level, 
   type InsertLevel 
-} from '@shared/schema';
+} from '@/shared/schema';
 import { eq } from 'drizzle-orm';
 
 /**
