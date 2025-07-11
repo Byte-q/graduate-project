@@ -10,6 +10,7 @@ const nextConfig = {
         pg: false,
       };
     }
+    return config;
   },
   reactStrictMode: true,
   images: {
