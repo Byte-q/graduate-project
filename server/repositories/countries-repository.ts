@@ -3,7 +3,7 @@ import {
   countries,
   type Country, 
   type InsertCountry 
-} from '@shared/schema';
+} from '@/shared/schema';
 import { eq } from 'drizzle-orm';
 
 /**
