@@ -5,9 +5,9 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'example.com',
+        hostname: 'images.unsplash.com',
         port: '', // optional
-        pathname: '/path/**', // optional
+        pathname: '/**', // optional
       },
       // more patterns...
     ]
@@ -16,7 +16,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:5000/server/api/:path*',
+        destination: `http://localhost:${process.env.port}/server/api/:path*`,
       }
     ];
   },
