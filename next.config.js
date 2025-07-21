@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
+  experimental: {
+    excludeDefaultMomentLocales: false,
+  },
   webpack: (config, { isServer }) => {
+    
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,

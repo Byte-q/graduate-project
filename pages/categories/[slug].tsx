@@ -203,7 +203,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
     // استيراد الوحدات اللازمة
     const { db } = await import('@/db');
     const { eq, sql } = await import('drizzle-orm');
-    const { categories, scholarships } = await import('@/shared/schema');
+    const { categories, scholarships } = await import('@/fullsco-backend/src/shared/schema');
     
     // جلب تفاصيل التصنيف
     const [category] = await db

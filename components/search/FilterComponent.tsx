@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, ChevronDown, X, Filter, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Category, Country, Level } from '@/shared/schema';
+import { Category, Country, Level } from '@/fullsco-backend/src/shared/schema';
 
 interface FilterComponentProps {
   title?: string;

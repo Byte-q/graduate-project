@@ -159,8 +159,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   
   try {
     // Dynamic import for database to avoid client-side bundling
-    const { db } = await import('@/server/db');
-    const { successStories } = await import('@/shared/schema');
+    const { db } = await import('@/fullsco-backend/src/server/db');
+    const { successStories } = await import('@/fullsco-backend/src/shared/schema');
     const { eq } = await import('drizzle-orm');
     
     console.log(`Direct database query for success story: ${slug}`);

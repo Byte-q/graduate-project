@@ -24,7 +24,7 @@
       "@/components/*": ["./components/*"],
       "@/contexts/*": ["./contexts/*"],
       "@/lib/*": ["./lib/*"],
-      "@/shared/*": ["./shared/*"]
+      "@/shared/*": ["./fullsco-backend/src1/shared/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

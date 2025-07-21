@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import MainLayout from '@/components/layout/MainLayout';
 import { useSiteSettings } from '@/contexts/site-settings-context';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

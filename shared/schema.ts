@@ -1,560 +1,505 @@
-import { pgTable, text, serial, integer, boolean, timestamp, json, varchar, pgEnum } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
-import { relations } from "drizzle-orm";
-import { University } from "lucide-react";
+// MongoDB-compatible schema and types for all entities
+import { z } from 'zod';
 
-// Users Table
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-  email: text("email").notNull().unique(),
-  fullName: text("display_name").notNull(),
-  role: text("role").default("user").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull()
+// User
+export interface User {
+  _id?: string;
+  username: string;
+  password: string;
+  email: string;
+  fullName: string;
+  role: string;
+  createdAt: Date;
+}
+export const userSchema = z.object({
+  _id: z.string().optional(),
+  username: z.string(),
+  password: z.string(),
+  email: z.string().email(),
+  fullName: z.string(),
+  role: z.string().default('user'),
+  createdAt: z.date().default(new Date()),
+  updatedAt: z.date().default(new Date()),
+});
+export const insertUserSchema = userSchema.omit({ _id: true, createdAt: true });
+
+// Category
+export interface Category {
+  _id?: string;
+  name: string;
+  slug: string;
+  description?: string;
+}
+export const categorySchema = z.object({
+  _id: z.string().optional(),
+  name: z.string(),
+  slug: z.string(),
+  description: z.string().optional(),
+});
+export const insertCategory = categorySchema.omit({ _id: true });
+
+// Level
+export interface Level {
+  _id?: string;
+  name: string;
+  slug: string;
+  description?: string;
+}
+export const levelSchema = z.object({
+  _id: z.string().optional(),
+  name: z.string(),
+  slug: z.string(),
+  description: z.string().optional(),
+});
+export const insertLevelSchema = levelSchema.omit({ _id: true });
+
+// Country
+export interface Country {
+  _id?: string;
+  name: string;
+  slug: string;
+  flagUrl?: string;
+}
+export const countrySchema = z.object({
+  _id: z.string().optional(),
+  name: z.string(),
+  slug: z.string(),
+  flagUrl: z.string().optional(),
+});
+export const insertCountrySchema = countrySchema.omit({ _id: true });
+
+// Scholarship
+export interface Scholarship {
+  _id?: string;
+  title: string;
+  slug: string;
+  description: string;
+  content?: string;
+  deadline?: string;
+  amount?: string;
+  currency?: string;
+  university?: string;
+  department?: string;
+  website?: string;
+  startDate?: Date | string | null;
+  endDate?: Date | string | null;
+  isFeatured?: boolean;
+  isFullyFunded?: boolean;
+  isPublished?: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
+  focusKeyword?: string;
+  countryId?: string;
+  levelId?: string;
+  categoryId?: string;
+  requirements?: string;
+  applicationLink?: string;
+  imageUrl?: string;
+  views?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+export const scholarshipSchema = z.object({
+  _id: z.string().optional(),
+  title: z.string(),
+  slug: z.string(),
+  description: z.string(),
+  content: z.string().optional(),
+  deadline: z.string().optional(),
+  amount: z.string().optional(),
+  currency: z.string().optional(),
+  university: z.string().optional(),
+  department: z.string().optional(),
+  website: z.string().optional(),
+  startDate: z.any().optional(),
+  endDate: z.any().optional(),
+  isFeatured: z.boolean().optional(),
+  isFullyFunded: z.boolean().optional(),
+  isPublished: z.boolean().optional(),
+  seoTitle: z.string().optional(),
+  seoDescription: z.string().optional(),
+  seoKeywords: z.string().optional(),
+  focusKeyword: z.string().optional(),
+  countryId: z.string().optional(),
+  levelId: z.string().optional(),
+  categoryId: z.string().optional(),
+  requirements: z.string().optional(),
+  applicationLink: z.string().optional(),
+  imageUrl: z.string().optional(),
+  views: z.number().optional(),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
+});
+export const insertScholarshipSchema = scholarshipSchema.omit({ _id: true, createdAt: true, updatedAt: true });
+
+// Post
+export interface Post {
+  _id?: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  authorId: string;
+  status: string;
+  imageUrl?: string;
+  isFeatured?: boolean;
+  views?: number;
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
+  focusKeyword?: string;
+  categoryId?: string;
+  readTime?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+export const postSchema = z.object({
+  _id: z.string().optional(),
+  title: z.string(),
+  slug: z.string(),
+  content: z.string(),
+  excerpt: z.string().optional(),
+  authorId: z.string(),
+  status: z.string(),
+  imageUrl: z.string().optional(),
+  isFeatured: z.boolean().optional(),
+  views: z.number().optional(),
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
+  metaKeywords: z.string().optional(),
+  focusKeyword: z.string().optional(),
+  categoryId: z.string().optional(),
+  readTime: z.number().optional(),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
+});
+export const insertPostSchema = postSchema.omit({ _id: true, createdAt: true, updatedAt: true });
+
+// Tag
+export interface Tag {
+  _id?: string;
+  name: string;
+  slug: string;
+}
+export const tagSchema = z.object({
+  _id: z.string().optional(),
+  name: z.string(),
+  slug: z.string(),
+});
+export const insertTagSchema = tagSchema.omit({ _id: true });
+
+// PostTag (Junction)
+export interface PostTag {
+  _id?: string;
+  postId: string;
+  tagId: string;
+}
+export const postTagSchema = z.object({
+  _id: z.string().optional(),
+  postId: z.string(),
+  tagId: z.string(),
+});
+export const insertPostTagSchema = postTagSchema.omit({ _id: true });
+
+// Success Story
+export interface SuccessStory {
+  _id?: string;
+  name: string;
+  title: string;
+  slug: string;
+  content: string;
+  university: string;
+  country: string;
+  degree: string;
+  graduationYear: string;
+  thumbnailUrl: string;
+  studentName: string;
+  scholarshipName?: string;
+  imageUrl?: string;
+  isPublished?: boolean;
+  createdAt?: Date;
+}
+export const successStorySchema = z.object({
+  _id: z.string().optional(),
+  name: z.string(),
+  title: z.string(),
+  slug: z.string(),
+  content: z.string(),
+  university: z.string(),
+  country: z.string(),
+  degree: z.string(),
+  graduationYear: z.string(),
+  thumbnailUrl: z.string(),
+  studentName: z.string(),
+  scholarshipName: z.string().optional(),
+  imageUrl: z.string().optional(),
+  isPublished: z.boolean().optional(),
+  createdAt: z.date().optional(),
+});
+export const insertSuccessStory = successStorySchema.omit({ _id: true, createdAt: true });
+
+// Subscriber
+export interface Subscriber {
+  _id?: string;
+  email: string;
+  createdAt?: Date;
+}
+export const subscriberSchema = z.object({
+  _id: z.string().optional(),
+  email: z.string().email(),
+  createdAt: z.date().optional(),
+});
+export const InsertSubscriber = subscriberSchema.omit({ _id: true, createdAt: true });
+
+// SEO Setting
+export interface SeoSetting {
+  _id?: string;
+  pagePath: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  ogImage?: string;
+  keywords?: string;
+}
+export const seoSettingSchema = z.object({
+  _id: z.string().optional(),
+  pagePath: z.string(),
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
+  ogImage: z.string().optional(),
+  keywords: z.string().optional(),
+});
+export const insertSeoSettingsSchema = seoSettingSchema.omit({ _id: true });
+
+// Partners
+
+export interface Partner {
+  _id: string;
+  name: string;
+  logoUrl?: string;
+  website?: string;
+  description?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  isActive?: boolean;
+}
+
+export const partnerSchema = z.object({
+  _id: z.string().optional(),
+  name: z.string(),
+  logoUrl: z.string().optional(),
+  website: z.string().optional(),
+  description: z.string().optional(),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
+  isActive: z.boolean().optional(),
+  order: z.number().optional(),
 });
 
-export const insertUserSchema = createInsertSchema(users).omit({
-  id: true,
-  createdAt: true
+export const InsertPartner = partnerSchema.omit({ _id: true});
+
+// Site Setting
+export interface SiteSetting {
+  _id?: string;
+  siteName: string;
+  siteTagline?: string;
+  siteDescription?: string;
+  favicon?: string;
+  logo?: string;
+  logoDark?: string;
+  email?: string;
+  phone?: string;
+  whatsapp?: string;
+  address?: string;
+  facebook?: string;
+  twitter?: string;
+  instagram?: string;
+  youtube?: string;
+  linkedin?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
+  accentColor?: string;
+  enableDarkMode?: boolean;
+  rtlDirection?: boolean;
+  defaultLanguage?: string;
+  heroButtonText?: string;
+  enableNewsletter?: boolean;
+  enableScholarshipSearch?: boolean;
+  footerText?: string;
+  showHeroSection?: boolean;
+  showFeaturedScholarships?: boolean;
+  showSearchSection?: boolean;
+  showCategoriesSection?: boolean;
+  showCountriesSection?: boolean;
+  showLatestArticles?: boolean;
+  showSuccessStories?: boolean;
+  showNewsletterSection?: boolean;
+  showStatisticsSection?: boolean;
+  showPartnersSection?: boolean;
+  heroTitle?: string;
+  heroSubtitle?: string;
+  heroDescription?: string;
+}
+export const siteSettingSchema = z.object({
+  _id: z.string().optional(),
+  siteName: z.string(),
+  siteTagline: z.string().optional(),
+  siteDescription: z.string().optional(),
+  favicon: z.string().optional(),
+  logo: z.string().optional(),
+  logoDark: z.string().optional(),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  whatsapp: z.string().optional(),
+  address: z.string().optional(),
+  facebook: z.string().optional(),
+  twitter: z.string().optional(),
+  instagram: z.string().optional(),
+  youtube: z.string().optional(),
+  linkedin: z.string().optional(),
+  primaryColor: z.string().optional(),
+  secondaryColor: z.string().optional(),
+  accentColor: z.string().optional(),
+  enableDarkMode: z.boolean().optional(),
+  rtlDirection: z.boolean().optional(),
+  defaultLanguage: z.string().optional(),
+  heroButtonText: z.string().optional(),
+  enableNewsletter: z.boolean().optional(),
+  enableScholarshipSearch: z.boolean().optional(),
+  footerText: z.string().optional(),
+  showHeroSection: z.boolean().optional(),
+  showFeaturedScholarships: z.boolean().optional(),
+  showSearchSection: z.boolean().optional(),
+  showCategoriesSection: z.boolean().optional(),
+  showCountriesSection: z.boolean().optional(),
+  showLatestArticles: z.boolean().optional(),
+  showSuccessStories: z.boolean().optional(),
+  showNewsletterSection: z.boolean().optional(),
+  showStatisticsSection: z.boolean().optional(),
+  showPartnersSection: z.boolean().optional(),
+  heroTitle: z.string().optional(),
+  heroSubtitle: z.string().optional(),
+  heroDescription: z.string().optional(),
+});
+export const insertSiteSettingsSchema = siteSettingSchema.omit({ _id: true });
+
+// Statistics
+export interface statistic {
+  _id?: string,
+  data: any,
+  type: string, 
+};
+
+export const statisticSchema = z.object({
+  _id: z.string(),
+  data: z.any(),
+  type: z.string(),
 });
 
-// Scholarship Categories Table
-export const categories = pgTable("categories", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  slug: text("slug").notNull().unique(),
-  description: text("description")
+export const insertStatisticSchema = statisticSchema.omit({ _id: true })
+
+// Pages
+export interface Page {
+  _id?: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
+  isPublished?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export const pageSchema = z.object({
+  _id: z.string().optional(),
+  title: z.string(),
+  slug: z.string(),
+  content: z.string(),
+  excerpt: z.string().optional(),
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
+  metaKeywords: z.string().optional(),
+  isPublished: z.boolean().optional(),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
+});
+export const insertPageSchema = pageSchema.omit({ _id: true, createdAt: true, updatedAt: true });
+
+// Menus
+export interface MenuItem {
+  _id?: string;
+  label: string;
+  url: string;
+  order?: number;
+  menuId: string;
+  parentId?: string;
+  icon?: string;
+  isActive?: boolean;
+}
+
+export interface Menu {
+  _id?: string;
+  title: string;
+  slug: string;
+  items: MenuItem[];
+  createdAt?: Date;
+  updatedAt?: Date;
+  isActive?: boolean;
+}
+
+export const menuItemSchema = z.object({
+  _id: z.string().optional(),
+  label: z.string(),
+  url: z.string(),
+  order: z.number().optional(),
+  parentId: z.string().optional(),
+  menuId: z.string(),
+  icon: z.string().optional(),
+  isActive: z.boolean().optional(),
 });
 
-export const insertCategorySchema = createInsertSchema(categories).omit({
-  id: true
+export const menuSchema = z.object({
+  _id: z.string().optional(),
+  title: z.string(),
+  slug: z.string(),
+  items: z.array(menuItemSchema),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
+  isActive: z.boolean().optional(),
 });
+export const insertMenuSchema = menuSchema.omit({ _id: true, createdAt: true, updatedAt: true });
+export const insertMenuItemSchema = menuItemSchema.omit({ _id: true, });
 
-// Scholarship Level Table
-export const levels = pgTable("levels", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  slug: text("slug").notNull().unique(),
-  description: text("description") // إضافة حقل الوصف
+// Media
+export interface MediaFile {
+  _id?: string;
+  filename: string;
+  url: string;
+  type: string;
+  size: number;
+  altText?: string;
+  title?: string;
+  uploadedBy?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  isActive?: boolean;
+}
+
+export const mediaFileSchema = z.object({
+  _id: z.string().optional(),
+  filename: z.string(),
+  url: z.string(),
+  type: z.string(),
+  size: z.number(),
+  altText: z.string().optional(),
+  title: z.string().optional(),
+  uploadedBy: z.string().optional(),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
+  isActive: z.boolean().optional(),
 });
-
-export const insertLevelSchema = createInsertSchema(levels).omit({
-  id: true
-});
-
-// Countries Table
-export const countries = pgTable("countries", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  slug: text("slug").notNull().unique(),
-  flagUrl: text("flag_url") // إضافة حقل رابط العلم
-});
-
-export const insertCountrySchema = createInsertSchema(countries).omit({
-  id: true
-});
-
-// Scholarships Table
-export const scholarships = pgTable("scholarships", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  slug: text("slug").notNull().unique(),
-  description: text("description").notNull(),
-  content: text("content"),
-  deadline: text("deadline"),
-  amount: text("amount"),
-  currency: text("currency"),
-  university: text("university"),
-  department: text("department"),
-  website: text("website"),
-  startDate: timestamp("start_date", { mode: 'date' }),
-  endDate: timestamp("end_date", { mode: 'date' }),
-  isFeatured: boolean("is_featured").default(false),
-  isFullyFunded: boolean("is_fully_funded").default(false),
-  isPublished: boolean("is_published").default(true),
-  seoTitle: text("seo_title"),
-  seoDescription: text("seo_description"),
-  seoKeywords: text("seo_keywords"),
-  focusKeyword: text("focus_keyword"),
-  countryId: integer("country_id").references(() => countries.id),
-  levelId: integer("level_id").references(() => levels.id),
-  categoryId: integer("category_id").references(() => categories.id),
-  requirements: text("requirements"),
-  applicationLink: text("application_link"),
-  imageUrl: text("image_url"),
-  views: integer("views").default(0),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull()
-});
-
-// إنشاء مخطط Zod الأساسي
-const baseScholarshipSchema = createInsertSchema(scholarships).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// تعريف مخطط خاص للتواريخ للسماح بإدخال نصوص أو كائنات تاريخ أو قيم فارغة
-export const insertScholarshipSchema = baseScholarshipSchema.extend({
-  // تعديل: يجب استخدام z.any() بدلاً من z.union() لقبول أي نوع من البيانات للتواريخ
-  startDate: z.any(),
-  endDate: z.any()
-});
-
-// Blog Posts Table
-export const posts = pgTable("posts", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  slug: text("slug").notNull().unique(),
-  content: text("content").notNull(),
-  excerpt: text("excerpt"),
-  authorId: integer("author_id").references(() => users.id).notNull(),
-  status: text("status").notNull().default("draft"),
-  imageUrl: text("image_url"),
-  isFeatured: boolean("is_featured").default(false),
-  views: integer("views").default(0),
-  metaTitle: text("meta_title"),
-  metaDescription: text("meta_description"),
-  metaKeywords: text("meta_keywords"),
-  focusKeyword: text("focus_keyword"),
-  categoryId: integer("category_id").references(() => categories.id),
-  readTime: integer("read_time"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull()
-});
-
-export const insertPostSchema = createInsertSchema(posts).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// Tags Table
-export const tags = pgTable("tags", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  slug: text("slug").notNull().unique()
-});
-
-export const insertTagSchema = createInsertSchema(tags).omit({
-  id: true
-});
-
-// Post Tags Junction Table
-export const postTags = pgTable("post_tags", {
-  id: serial("id").primaryKey(),
-  postId: integer("post_id").references(() => posts.id).notNull(),
-  tagId: integer("tag_id").references(() => tags.id).notNull()
-});
-
-export const insertPostTagSchema = createInsertSchema(postTags).omit({
-  id: true
-});
-
-// Success Stories Table
-export const successStories = pgTable("success_stories", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  title: text("title").notNull(),
-  slug: text("slug").notNull().unique(),
-  content: text("content").notNull(),
-  university: text("university").notNull(),
-  country: text("country").notNull(),
-  degree: text("degree").notNull(),
-  graduationYear: text("graduation_year").notNull(),
-  thumbnailUrl: text("thumbnail_url").notNull(),
-  studentName: text("student_name").notNull(),
-  scholarshipName: text("scholarship_name"),
-  imageUrl: text("image_url"),
-  isPublished: boolean("is_published").default(true),
-  createdAt: timestamp("created_at").defaultNow().notNull()
-});
-
-export const insertSuccessStorySchema = createInsertSchema(successStories).omit({
-  id: true,
-  createdAt: true
-});
-
-// Newsletter Subscribers Table
-export const subscribers = pgTable("subscribers", {
-  id: serial("id").primaryKey(),
-  email: text("email").notNull().unique(),
-  createdAt: timestamp("created_at").defaultNow().notNull()
-});
-
-export const insertSubscriberSchema = createInsertSchema(subscribers).omit({
-  id: true,
-  createdAt: true
-});
-
-// SEO Settings Table
-export const seoSettings = pgTable("seo_settings", {
-  id: serial("id").primaryKey(),
-  pagePath: text("page_path").notNull().unique(),
-  metaTitle: text("meta_title"),
-  metaDescription: text("meta_description"),
-  ogImage: text("og_image"),
-  keywords: text("keywords")
-});
-
-export const insertSeoSettingsSchema = createInsertSchema(seoSettings).omit({
-  id: true
-});
-
-// Site Settings Table
-export const siteSettings = pgTable("site_settings", {
-  id: serial("id").primaryKey(),
-  siteName: text("site_name").notNull(),
-  siteTagline: text("site_tagline"),
-  siteDescription: text("site_description"),
-  favicon: text("favicon"),
-  logo: text("logo"),
-  logoDark: text("logo_dark"),
-  email: text("email"),
-  phone: text("phone"),
-  whatsapp: text("whatsapp"),
-  address: text("address"),
-  facebook: text("facebook"),
-  twitter: text("twitter"),
-  instagram: text("instagram"),
-  youtube: text("youtube"),
-  linkedin: text("linkedin"),
-  primaryColor: text("primary_color"),
-  secondaryColor: text("secondary_color"),
-  accentColor: text("accent_color"),
-  enableDarkMode: boolean("enable_dark_mode"),
-  rtlDirection: boolean("rtl_direction"),
-  defaultLanguage: text("default_language"),
-  heroButtonText: text("hero_button_text"),
-  enableNewsletter: boolean("enable_newsletter"),
-  enableScholarshipSearch: boolean("enable_scholarship_search"),
-  footerText: text("footer_text"),
-  
-  // Home Page Sections
-  showHeroSection: boolean("show_hero_section"),
-  showFeaturedScholarships: boolean("show_featured_scholarships"),
-  showSearchSection: boolean("show_search_section"),
-  showCategoriesSection: boolean("show_categories_section"),
-  showCountriesSection: boolean("show_countries_section"),
-  showLatestArticles: boolean("show_latest_articles"),
-  showSuccessStories: boolean("show_success_stories"),
-  showNewsletterSection: boolean("show_newsletter_section"),
-  showStatisticsSection: boolean("show_statistics_section"),
-  showPartnersSection: boolean("show_partners_section"),
-  
-  // Section Titles and Descriptions
-  heroTitle: text("hero_title"),
-  heroSubtitle: text("hero_subtitle"),
-  heroDescription: text("hero_description"),
-  featuredScholarshipsTitle: text("featured_scholarships_title"),
-  featuredScholarshipsDescription: text("featured_scholarships_description"),
-  categoriesSectionTitle: text("categories_section_title"),
-  categoriesSectionDescription: text("categories_section_description"),
-  countriesSectionTitle: text("countries_section_title"),
-  countriesSectionDescription: text("countries_section_description"),
-  latestArticlesTitle: text("latest_articles_title"),
-  latestArticlesDescription: text("latest_articles_description"),
-  successStoriesTitle: text("success_stories_title"),
-  successStoriesDescription: text("success_stories_description"),
-  newsletterSectionTitle: text("newsletter_section_title"),
-  newsletterSectionDescription: text("newsletter_section_description"),
-  statisticsSectionTitle: text("statistics_section_title"),
-  statisticsSectionDescription: text("statistics_section_description"),
-  partnersSectionTitle: text("partners_section_title"),
-  partnersSectionDescription: text("partners_section_description"),
-  
-  // Page Layouts
-  homePageLayout: text("home_page_layout"),
-  scholarshipPageLayout: text("scholarship_page_layout"),
-  articlePageLayout: text("article_page_layout"),
-  
-  // Custom CSS
-  customCss: text("custom_css"),
-});
-
-export const insertSiteSettingsSchema = createInsertSchema(siteSettings).omit({
-  id: true
-});
-
-// Static Pages Table
-export const pages = pgTable("pages", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  slug: text("slug").notNull().unique(),
-  content: text("content").notNull(),
-  metaTitle: text("meta_title"),
-  metaDescription: text("meta_description"),
-  imageUrl: text("image_url"),
-  isPublished: boolean("is_published").default(true),
-  showInFooter: boolean("show_in_footer").default(false),
-  showInHeader: boolean("show_in_header").default(false),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull()
-});
-
-export const insertPageSchema = createInsertSchema(pages).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// Define relations between tables
-export const scholarshipsRelations = relations(scholarships, ({ one }) => ({
-  level: one(levels, {
-    fields: [scholarships.levelId],
-    references: [levels.id]
-  }),
-  country: one(countries, {
-    fields: [scholarships.countryId],
-    references: [countries.id]
-  }),
-  category: one(categories, {
-    fields: [scholarships.categoryId],
-    references: [categories.id]
-  })
-}));
-
-export const levelsRelations = relations(levels, ({ many }) => ({
-  scholarships: many(scholarships)
-}));
-
-export const countriesRelations = relations(countries, ({ many }) => ({
-  scholarships: many(scholarships)
-}));
-
-export const categoriesRelations = relations(categories, ({ many }) => ({
-  scholarships: many(scholarships)
-}));
-
-// Export Types
-export type User = typeof users.$inferSelect;
-export type InsertUser = z.infer<typeof insertUserSchema>;
-
-export type Category = typeof categories.$inferSelect;
-export type InsertCategory = z.infer<typeof insertCategorySchema>;
-
-export type Level = typeof levels.$inferSelect;
-export type InsertLevel = z.infer<typeof insertLevelSchema>;
-
-export type Country = typeof countries.$inferSelect;
-export type InsertCountry = z.infer<typeof insertCountrySchema>;
-
-export type Scholarship = typeof scholarships.$inferSelect;
-export type InsertScholarship = z.infer<typeof insertScholarshipSchema>;
-
-export type Post = typeof posts.$inferSelect;
-export type InsertPost = z.infer<typeof insertPostSchema>;
-
-export type Tag = typeof tags.$inferSelect;
-export type InsertTag = z.infer<typeof insertTagSchema>;
-
-export type PostTag = typeof postTags.$inferSelect;
-export type InsertPostTag = z.infer<typeof insertPostTagSchema>;
-
-export type SuccessStory = typeof successStories.$inferSelect;
-export type InsertSuccessStory = z.infer<typeof insertSuccessStorySchema>;
-
-export type Subscriber = typeof subscribers.$inferSelect;
-export type InsertSubscriber = z.infer<typeof insertSubscriberSchema>;
-
-export type SeoSetting = typeof seoSettings.$inferSelect;
-export type InsertSeoSetting = z.infer<typeof insertSeoSettingsSchema>;
-
-export type SiteSetting = typeof siteSettings.$inferSelect;
-export type InsertSiteSetting = z.infer<typeof insertSiteSettingsSchema>;
-
-export type Page = typeof pages.$inferSelect;
-export type InsertPage = z.infer<typeof insertPageSchema>;
-
-// Menu Location Enum
-export const menuLocationEnum = pgEnum('menu_location', ['header', 'footer', 'sidebar', 'mobile']);
-
-// Menu Item Type Enum
-export const menuItemTypeEnum = pgEnum('menu_item_type', ['page', 'category', 'level', 'country', 'link', 'scholarship', 'post']);
-
-// Menus Table
-export const menus = pgTable("menus", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  slug: text("slug").notNull().unique(),
-  description: text("description"),
-  location: menuLocationEnum("location").notNull(),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull()
-});
-
-export const insertMenuSchema = createInsertSchema(menus).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// Menu Items Table - تعريف الجدول أولاً بدون العلاقة الذاتية
-export const menuItems = pgTable("menu_items", {
-  id: serial("id").primaryKey(),
-  menuId: integer("menu_id").references(() => menus.id).notNull(),
-  parentId: integer("parent_id"), // سنضيف المرجع لاحقًا
-  title: text("title").notNull(),
-  type: menuItemTypeEnum("type").notNull(),
-  url: text("url"), // Used for direct links
-  targetBlank: boolean("target_blank").default(false),
-  pageId: integer("page_id").references(() => pages.id),
-  categoryId: integer("category_id").references(() => categories.id),
-  levelId: integer("level_id").references(() => levels.id),
-  countryId: integer("country_id").references(() => countries.id),
-  scholarshipId: integer("scholarship_id").references(() => scholarships.id),
-  postId: integer("post_id").references(() => posts.id),
-  order: integer("order").default(0),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull()
-});
-
-export const insertMenuItemSchema = createInsertSchema(menuItems).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// Define relations
-export const menusRelations = relations(menus, ({ many }) => ({
-  menuItems: many(menuItems)
-}));
-
-export const menuItemsRelations = relations(menuItems, ({ one, many }) => ({
-  menu: one(menus, {
-    fields: [menuItems.menuId],
-    references: [menus.id]
-  }),
-  parent: one(menuItems, {
-    fields: [menuItems.parentId],
-    references: [menuItems.id]
-  }),
-  children: many(menuItems, {
-    relationName: "parent_child"
-  }),
-  page: one(pages, {
-    fields: [menuItems.pageId],
-    references: [pages.id]
-  }),
-  category: one(categories, {
-    fields: [menuItems.categoryId],
-    references: [categories.id]
-  }),
-  level: one(levels, {
-    fields: [menuItems.levelId],
-    references: [levels.id]
-  }),
-  country: one(countries, {
-    fields: [menuItems.countryId],
-    references: [countries.id]
-  }),
-  scholarship: one(scholarships, {
-    fields: [menuItems.scholarshipId],
-    references: [scholarships.id]
-  }),
-  post: one(posts, {
-    fields: [menuItems.postId],
-    references: [posts.id]
-  })
-}));
-
-// Media Files Table
-export const mediaFiles = pgTable("media_files", {
-  id: serial("id").primaryKey(),
-  filename: text("filename").notNull(),
-  originalFilename: text("original_filename").notNull(),
-  url: text("url").notNull(),
-  mimeType: text("mime_type").notNull(),
-  size: integer("size").notNull(),
-  title: text("title"),
-  alt: text("alt"),
-  width: integer("width"),
-  height: integer("height"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull()
-});
-
-export const insertMediaFileSchema = createInsertSchema(mediaFiles).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// Export Menu Types
-export type Menu = typeof menus.$inferSelect;
-export type InsertMenu = z.infer<typeof insertMenuSchema>;
-
-export type MenuItem = typeof menuItems.$inferSelect;
-export type InsertMenuItem = z.infer<typeof insertMenuItemSchema>;
-
-// Export Media Types
-export type MediaFile = typeof mediaFiles.$inferSelect;
-export type InsertMediaFile = z.infer<typeof insertMediaFileSchema>;
-
-// Statistics Table
-export const statistics = pgTable("statistics", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  value: text("value").notNull(), // Stored as text to allow for flexibility (e.g., "+1000", "50%", etc.)
-  description: text("description"), // Optional description
-  icon: text("icon").notNull(), // Store icon name (e.g., "Award", "Globe", etc.)
-  color: text("color"), // Optional color code/name for styling
-  order: integer("order").default(0),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull()
-});
-
-export const insertStatisticSchema = createInsertSchema(statistics).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// Partners Table
-export const partners = pgTable("partners", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  logoUrl: text("logo_url"), // URL to the partner logo
-  websiteUrl: text("website_url"), // Optional website URL
-  description: text("description"), // Optional description
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull()
-});
-
-export const insertPartnerSchema = createInsertSchema(partners).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// Export Statistics and Partners Types
-export type Statistic = typeof statistics.$inferSelect;
-export type InsertStatistic = z.infer<typeof insertStatisticSchema>;
-
-export type Partner = typeof partners.$inferSelect;
-export type InsertPartner = z.infer<typeof insertPartnerSchema>;
-
-// Contact Messages Table
-export const contactMessages = pgTable("contact_messages", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull(),
-  subject: text("subject").notNull(),
-  message: text("message").notNull(),
-  status: text("status").default("new").notNull(), // new, read, replied
-  createdAt: timestamp("created_at").defaultNow().notNull()
-});
-
-export const insertContactMessageSchema = createInsertSchema(contactMessages).omit({
-  id: true,
-  status: true,
-  createdAt: true
-});
-
-export type ContactMessage = typeof contactMessages.$inferSelect;
-export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
+export const insertMediaFileSchema = mediaFileSchema.omit({ _id: true, createdAt: true, updatedAt: true });
+// Add similar interfaces and schemas for Menu, MenuItem, MediaFile, ContactMessage as needed.

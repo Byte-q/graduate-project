@@ -145,7 +145,7 @@ export default function StaticPage({ page, error }: PageProps) {
 
 // استيراد قاعدة البيانات والمخططات
 import { db } from '@/db';
-import { pages as pagesTable } from '@/shared/schema';
+import { pages as pagesTable } from '@/fullsco-backend/src/shared/schema';
 import { eq } from 'drizzle-orm';
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async ({ params, res }) => {

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Calendar, User } from 'lucide-react';
-import { Post } from '@/shared/schema';
+import { Post } from '@/fullsco-backend/src/shared/schema';
 import { formatDate } from '@/lib/utils';
 import { OptimizedImage } from '@/components/OptimizedImage';
 import { cn } from '@/lib/utils';

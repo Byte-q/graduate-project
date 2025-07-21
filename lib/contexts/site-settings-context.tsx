@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { API_BASE_URL } from '../api';
 
 // تعريف نوع البيانات لإعدادات الموقع
 export interface SiteSettings {
@@ -71,7 +72,7 @@ export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ childr
     // جلب إعدادات الموقع من الخادم
     const fetchSiteSettings = async () => {
       try {
-        const response = await fetch('/api/site-settings');
+        const response = await fetch(`${API_BASE_URL}/site-settings`);
         if (!response.ok) {
           throw new Error('فشل في جلب إعدادات الموقع');
         }

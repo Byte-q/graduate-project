@@ -164,7 +164,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     const search = query.search as string;
 
     // استيراد API handler مباشرة
-    const handler = (await import('../api-disabled/countries/index')).default;
+    const handler = (await import('../../api-disabled/countries/index')).default;
     
     // محاكاة طلب واستجابة
     const req: any = {
@@ -201,7 +201,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     if (!responseData.countries) {
       const db = (await import('@/db')).db;
       const { sql } = await import('drizzle-orm');
-      const countries = (await import('@/shared/schema')).countries;
+      const countries = (await import('@/fullsco-backend/src/shared/schema')).countries;
       
       const countriesList = await db.select().from(countries).orderBy(countries.name);
       

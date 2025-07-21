@@ -156,7 +156,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     const search = query.search as string;
 
     // استيراد API handler مباشرة
-    const handler = (await import('../api-disabled/categories/index')).default;
+    const handler = (await import('../../api-disabled/categories/index')).default;
     
     // محاكاة طلب واستجابة
     const req: any = {

@@ -6,7 +6,7 @@ import MainLayout from '@/components/layout/MainLayout';
 import { SuccessStoryCard, SuccessStoryCardSkeleton } from '@/components/success-stories/SuccessStoryCard';
 import { SearchForm } from '@/components/search/SearchForm';
 import { Pagination } from '@/components/ui/Pagination';
-import { SuccessStory } from '@/shared/schema';
+import { SuccessStory } from '@/fullsco-backend/src/shared/schema';
 import { fetchWithCache } from '@/hooks/use-cached-data';
 
 interface SuccessStoriesPageProps {

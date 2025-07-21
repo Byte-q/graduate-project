@@ -2,7 +2,7 @@
  * وظائف مساعدة خاصة بالمنح الدراسية
  */
 import { safeObjectEntries } from './utils';
-import type { Level } from '@/shared/schema';
+import type { Level } from '../shared/schema';
 
 /**
  * استخراج معلومات المستوى الأكاديمي من عنوان المنحة إذا لم يكن محدد بشكل صريح

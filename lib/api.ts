@@ -7,10 +7,7 @@ import { debug } from './utils';
 
 // الإعدادات الافتراضية
 // - على الخادم: استخدم متغير البيئة API_BASE_URL
-// - في المتصفح: استخدم المسار النسبي لأن عنوان الخادم هو نفسه
-const API_BASE_URL = typeof window !== 'undefined' 
-  ? (process.env.NEXT_PUBLIC_API_BASE_URL || '') // عندما نكون في المتصفح
-  : process.env.API_BASE_URL || 'http://localhost:5000'; // على الخادم
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://back-end-1-6vrh.onrender.com';
 
 console.log(`API_BASE_URL is set to: ${API_BASE_URL}`);
 
