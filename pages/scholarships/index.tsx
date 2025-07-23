@@ -56,6 +56,7 @@ interface ScholarshipsPageProps {
   };
 }
 
+
 // مكون صفحة المنح الدراسية
 export default function ScholarshipsPage({
   scholarships,
@@ -242,12 +243,12 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     if (sortBy) queryParams.sortBy = sortBy;
     
     // استدعاء API باستخدام apiGet
-    const data = await apiGet('scholarships', queryParams);
+    const data = await apiGet(`/scholarships`);
     
     // معالجة البيانات
     return {
       props: {
-        scholarships: data.scholarships || [],
+        scholarships: data.data || [],
         filterOptions: data.meta.filters || {
           categories: [],
           countries: [],

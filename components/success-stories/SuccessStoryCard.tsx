@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Calendar, GraduationCap } from 'lucide-react';
-import { SuccessStory } from '@/fullsco-backend/src/shared/schema';
 import { formatDate, cn } from '@/lib/utils';
 import { OptimizedImage } from '@/components/OptimizedImage';
 
 interface SuccessStoryCardProps {
-  story: SuccessStory;
+  story: any;
   isCompact?: boolean;
 }
 

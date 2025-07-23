@@ -17,6 +17,7 @@ import {
   RefreshCw,
   Download
 } from 'lucide-react';
+import { apiGet } from '@/lib/api';
 
 // واجهة لنموذج المستخدم
 interface UserData {
@@ -60,14 +61,14 @@ export default function UsersManagement() {
           sortDirection
         });
 
-        const response = await fetch(`/api/admin/users?${queryParams}`);
+        const response = await apiGet(`/admin/users`);
         
-        if (!response.ok) {
-          throw new Error('فشل في جلب بيانات المستخدمين');
-        }
+        // if (!response.ok) {
+        //   throw new Error('فشل في جلب بيانات المستخدمين');
+        // }
 
-        const data = await response.json();
-        setUsers(data.users);
+        const data = await response.data;
+        setUsers(data || []);
         setTotalPages(data.totalPages || 1);
       } catch (err: any) {
         console.error('Error fetching users:', err);

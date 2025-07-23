@@ -23,6 +23,7 @@ import {
   Moon,
   Sun,
 } from 'lucide-react';
+import { apiGet } from '@/lib/api';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -42,18 +43,18 @@ export default function AdminLayout({ children, title, description = 'لوحة �
   useEffect(() => {
     const checkAdminAuth = async () => {
       try {
-        const response = await fetch('/api/auth/user');
+        const response = sessionStorage.getItem('user');
         
-        if (response.status === 401) {
+        if (response === null) {
           // إعادة التوجيه إلى صفحة تسجيل الدخول
           router.push('/auth/login');
           return;
         }
 
-        const data = await response.json();
+        const data = await response ? JSON.parse(response) : null;
         
         // التحقق من صلاحيات المسؤول
-        if (data?.user?.role !== 'admin') {
+        if (data?.user?.role === 'user') {
           // إعادة التوجيه إلى الصفحة الرئيسية إذا لم يكن المستخدم مسؤول
           router.push('/');
           return;
@@ -112,14 +113,8 @@ export default function AdminLayout({ children, title, description = 'لوحة �
 
   // تسجيل الخروج
   const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-      });
-      router.push('/auth/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+    sessionStorage.removeItem('user');
+    localStorage.removeItem('adminDarkMode');
   };
 
   if (isLoading) {
@@ -207,7 +202,7 @@ export default function AdminLayout({ children, title, description = 'لوحة �
         {/* الشريط الجانبي */}
         <aside
           className={`${
-            isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'
+            isMobileMenuOpen ? 'translate-x-0' : 'translate-x-[-100%] md:translate-x-0'
           } fixed md:static top-16 left-0 h-full w-64 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 shadow-md md:shadow-none transition-transform duration-300 md:translate-x-0 z-20`}
         >
           <nav className="p-4 space-y-1">

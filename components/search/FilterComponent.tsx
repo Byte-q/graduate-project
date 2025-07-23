@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, AnyActionArg } from 'react';
 import { Check, ChevronDown, X, Filter, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Category, Country, Level } from '@/fullsco-backend/src/shared/schema';
+// import { Category, Country, Level } from '@/fullsco-backend/src/shared/schema';
 
 interface FilterComponentProps {
   title?: string;
-  categories?: Category[];
-  countries?: Country[];
-  levels?: Level[];
+  categories?: any[];
+  countries?: any[];
+  levels?: any[];
   fundingTypes?: string[];
   defaultValues?: Record<string, string>;
   onFilterChange: (filters: Record<string, string>) => void;

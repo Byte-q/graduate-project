@@ -8,6 +8,7 @@ import { useSiteSettings } from '../contexts/site-settings-context';
 import { ScholarshipCard } from '../components/scholarships/ScholarshipCard';
 import { PostCard } from '../components/posts/PostCard';
 import { SuccessStoryCard } from '../components/success-stories/SuccessStoryCard';
+import { apiGet } from '@/lib/api';
 
 // تعريف أنواع البيانات
 interface Category {
@@ -532,7 +533,7 @@ export default function HomePage({ categories, countries, levels = [], featuredS
             {featuredSuccessStories && featuredSuccessStories.length > 0 ? (
               featuredSuccessStories.map((story: any) => (
                 <SuccessStoryCard 
-                  key={story.id} 
+                  key={story._id} 
                   story={story as any}
                   isCompact={true}
                 />
@@ -599,316 +600,56 @@ export default function HomePage({ categories, countries, levels = [], featuredS
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ res }) => {
-  // تحسين الأداء: إضافة خيار التخزين المؤقت Cache-Control
-  // تخزين مؤقت لمدة ساعة للصفحة الرئيسية
-  res.setHeader(
-    'Cache-Control',
-    'public, max-age=1800, s-maxage=3600, stale-while-revalidate=59'
-  );
+export const getServerSideProps: GetServerSideProps = async () => {
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/server/api';
+
   try {
-    // استيراد الوظائف والوحدات اللازمة
-    const { db } = await import('../db');
-    const { sql, desc } = await import('drizzle-orm');
-    const { categories, countries, scholarships, levels, posts, successStories } = await import('../fullsco-backend/src/shared/schema');
+    // Fetch categories
+    const categoriesRes = await apiGet(`/categories`);
+    const categories = categoriesRes.data;
+    // const categories = categoriesRes.ok ? await categoriesRes.json() : [];
 
-    // جلب التصنيفات مع عدد المنح الدراسية لكل تصنيف
-    const categoriesWithCount = await db
-      .select({
-        id: categories.id,
-        name: categories.name,
-        slug: categories.slug,
-        description: categories.description,
-        scholarshipCount: sql`count(${scholarships.id})`.mapWith(Number),
-      })
-      .from(categories)
-      .leftJoin(scholarships, sql`${scholarships.categoryId} = ${categories.id}`)
-      .groupBy(categories.id)
-      .orderBy(sql`count(${scholarships.id}) DESC`)
-      .limit(8);
+    // Fetch countries
+    const countriesRes = await apiGet(`/countries`);
+    const countries = countriesRes.data;
 
-    // جلب الدول مع عدد المنح الدراسية لكل دولة
-    const countriesWithCount = await db
-      .select({
-        id: countries.id,
-        name: countries.name,
-        slug: countries.slug,
-        scholarshipCount: sql`count(${scholarships.id})`.mapWith(Number),
-      })
-      .from(countries)
-      .leftJoin(scholarships, sql`${scholarships.countryId} = ${countries.id}`)
-      .groupBy(countries.id)
-      .orderBy(sql`count(${scholarships.id}) DESC`)
-      .limit(8);
-    
-    // إضافة حقل flagUrl افتراضي لكل دولة
-    const countriesWithFlags = countriesWithCount.map(country => ({
-      ...country,
-      flagUrl: null // سيتم تحديثه لاحقًا من مصدر خارجي
-    }));
-    
-    // جلب المستويات الدراسية مع عدد المنح الدراسية لكل مستوى
-    const levelsWithCount = await db
-      .select({
-        id: levels.id,
-        name: levels.name,
-        slug: levels.slug,
-        description: levels.description,
-        scholarshipCount: sql`count(${scholarships.id})`.mapWith(Number),
-      })
-      .from(levels)
-      .leftJoin(scholarships, sql`${scholarships.levelId} = ${levels.id}`)
-      .groupBy(levels.id)
-      .orderBy(sql`count(${scholarships.id}) DESC`)
-      .limit(6);
+    // Fetch levels
+    const levelsRes = await apiGet(`/levels`);
+    const levels = levelsRes.data;
 
-    // جلب المنح الدراسية المميزة باستخدام واجهة API
-    console.log('Fetching featured scholarships from API...');
-    let featuredScholarships = [];
-    
-    // تحديد المسار الكامل للاتصال بـ Express API
-    const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:5000';
-    
-    try {
-      // استخدام طلب fetch مع المسار المطلق للخادم وإصلاح المسارات
-      console.log('Using server/api path for featured scholarships');
-      const response = await fetch(`${API_BASE_URL}/server/api/scholarships/featured`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        
-        // التعامل مع الاستجابة مباشرة كمصفوفة
-        if (Array.isArray(data)) {
-          featuredScholarships = data;
-          console.log(`Successfully fetched ${featuredScholarships.length} featured scholarships from API`);
-        } 
-        // التحقق من هيكل البيانات القديم
-        else if (data.success && Array.isArray(data.scholarships)) {
-          featuredScholarships = data.scholarships;
-          console.log(`Successfully fetched ${featuredScholarships.length} featured scholarships from API (old format)`);
-        } else {
-          console.error('API returned invalid data structure:', typeof data);
-        }
-      } else {
-        console.error(`Failed to fetch featured scholarships, status: ${response.status}`);
-        throw new Error(`API request failed with status ${response.status}`);
-      }
-    } catch (error) {
-      console.error('Error fetching featured scholarships from API:', error);
-      
-      // إذا فشل استخدام API، نستخدم استعلام احتياطي مباشر
-      console.log('Falling back to direct database query for featured scholarships...');
-      
-      const featuredScholarshipsQuery = await db
-        .select({
-          id: scholarships.id,
-          title: scholarships.title,
-          slug: scholarships.slug,
-          description: scholarships.description,
-          imageUrl: scholarships.imageUrl,
-          deadline: scholarships.deadline,
-          amount: scholarships.amount,
-          currency: scholarships.currency,
-          university: scholarships.university,
-          isFeatured: scholarships.isFeatured,
-          isFullyFunded: scholarships.isFullyFunded,
-          countryId: scholarships.countryId,
-          levelId: scholarships.levelId,
-          categoryId: scholarships.categoryId,
-          createdAt: scholarships.createdAt
-        })
-        .from(scholarships)
-        .where(sql`${scholarships.isFeatured} = true AND ${scholarships.isPublished} = true`)
-        .orderBy(desc(scholarships.createdAt))
-        .limit(6);
-      
-      // تحويل النتائج إلى الصيغة المطلوبة
-      featuredScholarships = await Promise.all(
-        featuredScholarshipsQuery.map(async (scholarship) => {
-          // جلب البيانات المرتبطة
-          let category = null, country = null, level = null;
-          
-          // جلب التصنيف
-          if (scholarship.categoryId) {
-            const categoryData = await db
-              .select({
-                id: categories.id,
-                name: categories.name,
-                slug: categories.slug
-              })
-              .from(categories)
-              .where(sql`${categories.id} = ${scholarship.categoryId}`)
-              .limit(1);
-            
-            if (categoryData.length > 0) {
-              category = categoryData[0];
-            }
-          }
-          
-          // جلب الدولة
-          if (scholarship.countryId) {
-            const countryData = await db
-              .select({
-                id: countries.id,
-                name: countries.name,
-                slug: countries.slug
-              })
-              .from(countries)
-              .where(sql`${countries.id} = ${scholarship.countryId}`)
-              .limit(1);
-            
-            if (countryData.length > 0) {
-              country = countryData[0];
-            }
-          }
-          
-          // جلب المستوى
-          if (scholarship.levelId) {
-            const levelData = await db
-              .select({
-                id: levels.id,
-                name: levels.name,
-                slug: levels.slug
-              })
-              .from(levels)
-              .where(sql`${levels.id} = ${scholarship.levelId}`)
-              .limit(1);
-            
-            if (levelData.length > 0) {
-              level = levelData[0];
-            }
-          }
-          
-          // تحويل كائن المنحة للنموذج المتوافق مع الواجهة
-          return {
-            ...scholarship,
-            image_url: scholarship.imageUrl,
-            is_featured: scholarship.isFeatured,
-            is_fully_funded: scholarship.isFullyFunded,
-            category_id: scholarship.categoryId,
-            country_id: scholarship.countryId,
-            level_id: scholarship.levelId,
-            thumbnailUrl: scholarship.imageUrl || '/images/default-scholarship.svg',
-            category,
-            country,
-            level
-          };
-        })
-      );
-    }
+    // Fetch featured scholarships
+    const featuredScholarshipsRes = await apiGet(`/scholarships`);
+    const featuredScholarships = featuredScholarshipsRes.data;
 
-    // جلب آخر المقالات
-    let latestPosts = [];
-    try {
-      // استخدام المسار الكامل للخادم مع تحديث المسار
-      console.log('Using server/api path for latest posts');
-      const postsResponse = await fetch(`${API_BASE_URL}/server/api/posts?limit=3`);
-      if (postsResponse.ok) {
-        const postsData = await postsResponse.json();
-        // استقبال البيانات كمصفوفة مباشرة أو كجزء من كائن
-        const posts = Array.isArray(postsData) ? postsData : (Array.isArray(postsData.posts) ? postsData.posts : []);
-        if (posts.length > 0) {
-          // تجهيز المقالات ليتناسب مع نموذج البيانات المتوقع
-          latestPosts = posts.map((post: any) => {
-            return {
-              ...post,
-              content: post.content || '',
-              isFeatured: post.isFeatured === true,
-              imageUrl: post.imageUrl || post.image_url || null,
-              thumbnailUrl: post.thumbnailUrl || post.imageUrl || post.image_url || null,
-              // إضافة الحقول المفقودة التي يتوقعها المكون
-              metaTitle: post.metaTitle || null,
-              metaDescription: post.metaDescription || null,
-              metaKeywords: post.metaKeywords || null,
-              focusKeyword: post.focusKeyword || null,
-              views: post.views || 0,
-              authorName: post.authorName || 'كاتب المقال'
-            };
-          });
-          console.log(`Successfully fetched ${latestPosts.length} latest posts from API`);
-        } else {
-          console.log(`Response structure is not as expected: ${JSON.stringify(postsData)}`);
-        }
-      }
-    } catch (postsError) {
-      console.error('Error fetching latest posts from API:', postsError);
-      // استعلام مباشر لقاعدة البيانات كنسخة احتياطية
-      latestPosts = await db
-        .select()
-        .from(posts)
-        .orderBy(desc(posts.createdAt))
-        .limit(3);
-    }
+    // Fetch latest posts
+    const latestPostsRes = await apiGet(`/posts?limit=3`);
+    const latestPosts = latestPostsRes.data;
 
-    // جلب قصص النجاح
-    let featuredSuccessStories = [];
-    try {
-      // استخدام المسار الكامل للخادم مع تحديث المسار
-      console.log('Using server/api path for success stories');
-      const storiesResponse = await fetch(`${API_BASE_URL}/server/api/success-stories?limit=3`);
-      if (storiesResponse.ok) {
-        const storiesData = await storiesResponse.json();
-        // استقبال البيانات كمصفوفة مباشرة أو كجزء من كائن
-        const stories = Array.isArray(storiesData) ? storiesData : (Array.isArray(storiesData.stories) ? storiesData.stories : []);
-        if (stories.length > 0) {
-          // تجهيز قصص النجاح لتتناسب مع نموذج البيانات المتوقع
-          featuredSuccessStories = stories.map((story: any) => {
-            return {
-              ...story,
-              content: story.content || '',
-              isPublished: story.isPublished === true || true,
-              imageUrl: story.imageUrl || null,
-              scholarshipName: story.scholarshipName || null,
-              // التأكد من وجود الحقول المتوقعة في المكون
-              studentName: story.studentName || story.name || null,
-              name: story.name || story.studentName || null
-            };
-          });
-          console.log(`Successfully fetched ${featuredSuccessStories.length} success stories from API`);
-        } else {
-          console.log(`Response structure for stories is not as expected: ${JSON.stringify(storiesData)}`);
-        }
-      }
-    } catch (storiesError) {
-      console.error('Error fetching success stories from API:', storiesError);
-      // استعلام مباشر لقاعدة البيانات كنسخة احتياطية
-      featuredSuccessStories = await db
-        .select()
-        .from(successStories)
-        .orderBy(desc(successStories.createdAt))
-        .limit(3);
-    }
-
-    // تحويل البيانات إلى صيغة يمكن تمثيلها كـ JSON
-    // تحويل كائنات التاريخ إلى سلاسل نصية
-    const serializableData = {
-      categories: JSON.parse(JSON.stringify(categoriesWithCount)),
-      countries: JSON.parse(JSON.stringify(countriesWithFlags)),
-      levels: JSON.parse(JSON.stringify(levelsWithCount)),
-      featuredScholarships: JSON.parse(JSON.stringify(featuredScholarships)),
-      latestPosts: JSON.parse(JSON.stringify(latestPosts)),
-      featuredSuccessStories: JSON.parse(JSON.stringify(featuredSuccessStories))
-    };
+    // Fetch featured success stories
+    const featuredSuccessStoriesRes = await apiGet(`/success-stories?limit=3`);
+    const featuredSuccessStories = featuredSuccessStoriesRes.data;
 
     return {
-      props: serializableData
+      props: {
+        categories,
+        countries,
+        levels,
+        featuredScholarships,
+        latestPosts,
+        featuredSuccessStories,
+      },
     };
   } catch (error) {
     console.error('Error in getServerSideProps:', error);
-    
-    // في حالة حدوث خطأ، نعيد قيم افتراضية فارغة
-    // مع التأكد من إمكانية تمثيلها كـ JSON
-    const emptyData = {
-      categories: [],
-      countries: [],
-      levels: [],
-      featuredScholarships: [],
-      latestPosts: [],
-      featuredSuccessStories: []
-    };
-    
     return {
-      props: emptyData
+      props: {
+        categories: [],
+        countries: [],
+        levels: [],
+        featuredScholarships: [],
+        latestPosts: [],
+        featuredSuccessStories: [],
+      },
     };
   }
 };

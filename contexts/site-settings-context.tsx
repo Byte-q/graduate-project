@@ -165,79 +165,81 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
         console.log('بدء استعلام إعدادات الموقع');
         
         // استخدام وحدة API الجديدة
-        const data = await apiGet('site-settings');
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:3500/server/api'; // تأكد من تعيين URL API في البيئة
+        const res = (await fetch(`${apiUrl}/site-settings`));
+        const data: any = res.json();
         console.log('بيانات استجابة API لإعدادات الموقع:', data);
         
-        if (data.settings) {
-          console.log('تم استلام إعدادات الموقع:', data.settings);
+        if (data) {
+          console.log('تم استلام إعدادات الموقع:', data);
           
           // إعداد كائن الإعدادات
           const formattedSettings: SiteSettings = {
             // البيانات الأساسية
-            siteName: data.settings.siteName,
-            siteDescription: data.settings.siteDescription,
-            siteTagline: data.settings.siteTagline,
-            siteEmail: data.settings.email,
-            sitePhone: data.settings.phone,
-            siteAddress: data.settings.address,
-            logoUrl: data.settings.logo,
-            logoDarkUrl: data.settings.logoDark,
-            faviconUrl: data.settings.favicon,
-            footerText: data.settings.footerText,
+            siteName: data.siteName,
+            siteDescription: data.siteDescription,
+            siteTagline: data.siteTagline,
+            siteEmail: data.email,
+            sitePhone: data.phone,
+            siteAddress: data.address,
+            logoUrl: data.logo,
+            logoDarkUrl: data.logoDark,
+            faviconUrl: data.favicon,
+            footerText: data.footerText,
             
             // البيانات المحسنة
             socialMedia: {
-              facebook: data.settings.facebook,
-              twitter: data.settings.twitter,
-              instagram: data.settings.instagram,
-              linkedin: data.settings.linkedin,
-              youtube: data.settings.youtube,
-              whatsapp: data.settings.whatsapp
+              facebook: data.facebook,
+              twitter: data.twitter,
+              instagram: data.instagram,
+              linkedin: data.linkedin,
+              youtube: data.youtube,
+              whatsapp: data.whatsapp
             },
             
             // السمة
             theme: {
-              primaryColor: data.settings.primaryColor,
-              secondaryColor: data.settings.secondaryColor,
-              accentColor: data.settings.accentColor,
-              enableDarkMode: data.settings.enableDarkMode,
-              rtlDirection: data.settings.rtlDirection
+              primaryColor: data.primaryColor,
+              secondaryColor: data.secondaryColor,
+              accentColor: data.accentColor,
+              enableDarkMode: data.enableDarkMode,
+              rtlDirection: data.rtlDirection
             },
             
             // التخطيط
             layout: {
-              homePageLayout: data.settings.homePageLayout,
-              scholarshipPageLayout: data.settings.scholarshipPageLayout,
-              articlePageLayout: data.settings.articlePageLayout
+              homePageLayout: data.homePageLayout,
+              scholarshipPageLayout: data.scholarshipPageLayout,
+              articlePageLayout: data.articlePageLayout
             },
             
             // الأقسام
             sections: {
-              showHeroSection: data.settings.showHeroSection,
-              showFeaturedScholarships: data.settings.showFeaturedScholarships,
-              showSearchSection: data.settings.showSearchSection,
-              showCategoriesSection: data.settings.showCategoriesSection,
-              showCountriesSection: data.settings.showCountriesSection,
-              showLatestArticles: data.settings.showLatestArticles,
-              showSuccessStories: data.settings.showSuccessStories,
-              showNewsletterSection: data.settings.showNewsletterSection,
-              showStatisticsSection: data.settings.showStatisticsSection,
-              showPartnersSection: data.settings.showPartnersSection
+              showHeroSection: data.showHeroSection,
+              showFeaturedScholarships: data.showFeaturedScholarships,
+              showSearchSection: data.showSearchSection,
+              showCategoriesSection: data.showCategoriesSection,
+              showCountriesSection: data.showCountriesSection,
+              showLatestArticles: data.showLatestArticles,
+              showSuccessStories: data.showSuccessStories,
+              showNewsletterSection: data.showNewsletterSection,
+              showStatisticsSection: data.showStatisticsSection,
+              showPartnersSection: data.showPartnersSection
             },
             
             // إضافات
-            customCss: data.settings.customCss,
+            customCss: data.customCss,
             
             // دعم الحقول البديلة
-            email: data.settings.email,
-            phone: data.settings.phone, 
-            address: data.settings.address,
-            facebook: data.settings.facebook,
-            twitter: data.settings.twitter,
-            instagram: data.settings.instagram,
-            linkedin: data.settings.linkedin,
-            youtube: data.settings.youtube,
-            whatsapp: data.settings.whatsapp
+            email: data.email,
+            phone: data.phone, 
+            address: data.address,
+            facebook: data.facebook,
+            twitter: data.twitter,
+            instagram: data.instagram,
+            linkedin: data.linkedin,
+            youtube: data.youtube,
+            whatsapp: data.whatsapp
           };
           
           // تخزين البيانات في التخزين المحلي

@@ -30,20 +30,28 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3500/server/api';
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
 
       const data = await response.json();
-
+      
       if (!response.ok) {
         throw new Error(data.message || 'حدث خطأ أثناء تسجيل الدخول');
       }
+      
+      // After successful login
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
 
+      // set user in session storage or context
+      sessionStorage.setItem('user', JSON.stringify(data.user));
       // تسجيل الدخول بنجاح - التوجيه للصفحة الرئيسية
       console.log('تم تسجيل الدخول بنجاح:', data.user);
       router.push('/');

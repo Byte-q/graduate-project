@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Calendar, User, ArrowRight, GraduationCap, MapPin } from 'lucide-react';
 import MainLayout from '@/components/layout/MainLayout';
 import { formatDate } from '@/lib/utils';
+import { apiGet } from '@/lib/api';
 
 interface SuccessStoryDetailsProps {
   story: {
@@ -150,59 +151,61 @@ export default function SuccessStoryDetailPage({ story }: SuccessStoryDetailsPro
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { slug } = context.params || {};
-  
-  if (!slug || typeof slug !== 'string') {
-    return { notFound: true };
-  }
-  
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  const slug = params?.slug as string;
   try {
-    // Dynamic import for database to avoid client-side bundling
-    const { db } = await import('@/fullsco-backend/src/server/db');
-    const { successStories } = await import('@/fullsco-backend/src/shared/schema');
-    const { eq } = await import('drizzle-orm');
+    console.log(`جلب بيانات المنحة مع slug: ${slug}`);
     
-    console.log(`Direct database query for success story: ${slug}`);
+    if (!slug) {
+      return {
+        notFound: true
+      };
+    }
     
-    // استعلام لقصة النجاح بناءً على الاسم المستعار (slug)
-    const storyResult = await db
-      .select()
-      .from(successStories)
-      .where(eq(successStories.slug, slug))
-      .limit(1);
+    // استخدام وحدة API الجديدة
+    console.log(`استدعاء API للحصول على المنحة: ${slug}`);
+
+    let SuccessStoriesD;
+    let SuccessStoriesData;
     
-    if (!storyResult || storyResult.length === 0) {
-      console.log(`Success story not found: ${slug}`);
+    try{
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/server/api';
+      // نستخدم المسار الكامل مع بادئة /server/api/ للتوافق مع Express
+      console.log(`Using URL: ${API_BASE_URL}/success-stories/slug/${slug}`);
+      SuccessStoriesD = await apiGet(`/success-stories/slug/${slug}`);
+      SuccessStoriesData = SuccessStoriesD.data;
+
+    } catch (apiError) {
+      console.error('فشل في الحصول على القصة من API:', apiError);
+      return { notFound: true };
+    }
+
+     // التحقق من وجود القصة
+    if (!SuccessStoriesData) {
+      console.log(`لم يتم العثور على القصة الدراسية: ${slug}`);
       return { notFound: true };
     }
     
-    const story = storyResult[0];
+    const SuccessStory = SuccessStoriesData;
     
     // تنسيق البيانات للعرض
     const formattedStory = {
-      ...story,
+      ...SuccessStory,
       // ضمان توافق الحقول الأساسية
-      content: story.content || '',
-      imageUrl: story.imageUrl || null,
-      thumbnailUrl: story.imageUrl || null,
-      name: story.name || null,
-      studentName: story.name || null,
+      content: SuccessStory.content || '',
+      imageUrl: SuccessStory.imageUrl || null,
+      thumbnailUrl: SuccessStory.imageUrl || null,
+      name: SuccessStory.name || null,
+      studentName: SuccessStory.studentName || null,
       // ضمان توافق تنسيق التاريخ
-      createdAt: story.createdAt ? new Date(story.createdAt).toISOString() : new Date().toISOString(),
+      createdAt: SuccessStory.createdAt ? new Date(SuccessStory.createdAt).toISOString() : new Date().toISOString(),
       // updatedAt: story.updatedAt ? new Date(story.updatedAt).toISOString() : new Date().toISOString()
     };
-    
-    // تحسين الأداء: إضافة خيار التخزين المؤقت Cache-Control لمدة ساعة
-    context.res.setHeader(
-      'Cache-Control',
-      'public, s-maxage=3600, stale-while-revalidate=59'
-    );
     
     // تحويل البيانات إلى صيغة يمكن تمثيلها كـ JSON
     return {
       props: {
-        story: JSON.parse(JSON.stringify(formattedStory))
+        story: formattedStory
       }
     };
   } catch (error) {

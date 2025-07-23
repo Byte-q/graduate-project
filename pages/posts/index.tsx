@@ -373,21 +373,19 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     if (searchQuery) queryParams.search = searchQuery;
     
     // استخدام وحدة API الجديدة للحصول على المقالات
-    let postsData: any = { posts: [], totalPosts: 0, totalPages: 0 };
+    let postsData: any = { data: [], totalPosts: 0, totalPages: 0 };
     let categoriesWithCount: Category[] = [];
     
     // جلب المقالات
     try {
-      console.log("Using server/api path for posts in SSR");
-      postsData = await apiGet('/server/api/posts', queryParams);
+      postsData = await apiGet('/posts');
     } catch (error) {
       console.error('API request for posts failed:', error);
     }
     
     // جلب التصنيفات
     try {
-      console.log("Using server/api path for categories in SSR");
-      const categoriesData = await apiGet('/server/api/categories');
+      const categoriesData = await apiGet('/categories');
       categoriesWithCount = categoriesData.categories || [];
     } catch (error) {
       console.error('API request for categories failed:', error);
@@ -396,7 +394,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     // تحويل البيانات إلى صيغة يمكن تمثيلها كـ JSON
     return {
       props: {
-        posts: JSON.parse(JSON.stringify(postsData.posts || [])),
+        posts: JSON.parse(JSON.stringify(postsData.data || [])),
         totalPages: postsData.totalPages || 1,
         currentPage,
         totalPosts: postsData.totalPosts || 0,

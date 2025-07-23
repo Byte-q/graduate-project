@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { useSiteSettings } from '@/contexts/site-settings-context';
+import { apiGet } from '@/lib/api';
 
 // نوع البيانات للصفحة الثابتة
 interface Page {
@@ -144,9 +145,10 @@ export default function StaticPage({ page, error }: PageProps) {
 }
 
 // استيراد قاعدة البيانات والمخططات
-import { db } from '@/db';
-import { pages as pagesTable } from '@/fullsco-backend/src/shared/schema';
-import { eq } from 'drizzle-orm';
+// Remove: import { db } from '@/db';
+// Remove: import { pages as pagesTable } from '@/fullsco-backend/src/shared/schema';
+// Remove: import { eq } from 'drizzle-orm';
+// Use apiGet from '@/lib/api' for all data fetching.
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async ({ params, res }) => {
   // تعيين مدة التخزين المؤقت - 30 دقيقة للصفحات الثابتة
@@ -166,10 +168,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({ params
     console.log(`جلب بيانات الصفحة مع slug: ${slug}`);
     
     // استخدام قاعدة البيانات مباشرة
-    const pageData = await db.select()
-      .from(pagesTable)
-      .where(eq(pagesTable.slug, slug))
-      .limit(1);
+    const pageData = await apiGet(`/pages/slug/${slug}`);
     
     console.log(`تم العثور على ${pageData.length} صفحة`);
     

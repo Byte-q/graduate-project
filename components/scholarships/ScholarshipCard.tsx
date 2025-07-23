@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar, Globe, Award, GraduationCap, DollarSign } from 'lucide-react';
-import { Scholarship } from '@/fullsco-backend/src/shared/schema';
+// import { Scholarship } from '@/fullsco-backend/src/shared/schema';
 
 // الواجهة المعدلة لبيانات المنحة الدراسية
 interface ScholarshipCardData {

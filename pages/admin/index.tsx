@@ -14,6 +14,7 @@ import {
   Clock,
   AlertTriangle
 } from 'lucide-react';
+import { apiGet } from '@/lib/api';
 
 // نموذج لبيانات الإحصائيات
 interface StatsData {
@@ -44,7 +45,10 @@ interface StatsData {
 }
 
 export default function AdminDashboard() {
-  const [statsData, setStatsData] = useState<StatsData | null>(null);
+  const [scholarships, setScholarships] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [success, setSuccess] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,14 +57,32 @@ export default function AdminDashboard() {
       try {
         setIsLoading(true);
         // في البيئة الحقيقية، نجلب البيانات من API
-        const response = await fetch('/api/admin/dashboard');
+        const scholarResponse = await apiGet('/admin/scholarships');
+        const usersResponse = await apiGet('/admin/users');
+        const postsResponse = await apiGet('/admin/posts');
+        const successResponse = await apiGet('/admin/success-stories');
         
-        if (!response.ok) {
-          throw new Error('فشل في جلب بيانات لوحة القيادة');
-        }
+        // if (!scholarResponse.ok) {
+        //   throw new Error('فشل في جلب بيانات لوحة القيادة');
+        // }
+        // if (!usersResponse.ok) {
+        //   throw new Error('فشل في جلب بيانات لوحة القيادة');
+        // }
+        // if (!postsResponse.ok) {
+        //   throw new Error('فشل في جلب بيانات لوحة القيادة');
+        // }
+        // if (!successResponse.ok) {
+        //   throw new Error('فشل في جلب بيانات لوحة القيادة');
+        // }
 
-        const data = await response.json();
-        setStatsData(data);
+        const scholarData = await scholarResponse.data;
+        const usersData = await usersResponse.data;
+        const postsData = await postsResponse.data;
+        const successData = await successResponse.data;
+        setScholarships(scholarData);
+        setUsers(usersData);
+        setPosts(postsData);
+        setSuccess(successData);
       } catch (err: any) {
         console.error('Error fetching dashboard data:', err);
         setError(err.message || 'حدث خطأ أثناء جلب البيانات');
@@ -72,19 +94,22 @@ export default function AdminDashboard() {
     fetchDashboardData();
   }, []);
 
-  // إحصائيات افتراضية للعرض خلال التطوير
-  const defaultStats: StatsData = {
-    totalScholarships: 0,
-    totalUsers: 0,
-    totalPosts: 0,
-    totalSuccessStories: 0,
-    recentScholarships: [],
-    recentMessages: [],
-    popularScholarships: []
-  };
+  // // إحصائيات افتراضية للعرض خلال التطوير
+  // const defaultStats: StatsData = {
+  //   totalScholarships: 0,
+  //   totalUsers: 0,
+  //   totalPosts: 0,
+  //   totalSuccessStories: 0,
+  //   recentScholarships: [],
+  //   recentMessages: [],
+  //   popularScholarships: []
+  // };
 
-  // استخدام البيانات المجلوبة أو الافتراضية
-  const stats = statsData || defaultStats;
+  // // استخدام البيانات المجلوبة أو الافتراضية
+  // const scholarshipsStats = scholarships;
+  // const usersStats = users;
+  // const postsStats = posts;
+  // const successStats = success;
 
   return (
     <AdminLayout title="لوحة القيادة" description="ملخص إحصائيات وأنشطة الموقع">
@@ -107,7 +132,7 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">إجمالي المنح</p>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalScholarships}</h3>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{scholarships.length}</h3>
               </div>
             </div>
 
@@ -117,7 +142,7 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">إجمالي المستخدمين</p>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalUsers}</h3>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{users.length}</h3>
               </div>
             </div>
 
@@ -127,7 +152,7 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">إجمالي المقالات</p>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalPosts}</h3>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{posts.length}</h3>
               </div>
             </div>
 
@@ -137,7 +162,7 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">قصص النجاح</p>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalSuccessStories}</h3>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{success.length}</h3>
               </div>
             </div>
           </div>
@@ -213,13 +238,13 @@ export default function AdminDashboard() {
                 </div>
                 
                 <div className="p-6">
-                  {stats.recentScholarships.length > 0 ? (
+                  {scholarships.length > 0 ? (
                     <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                      {stats.recentScholarships.map((scholarship) => (
-                        <div key={scholarship.id} className="py-4 flex justify-between items-center">
+                      {scholarships.map((scholarship: any) => (
+                        <div key={scholarship._id} className="py-4 flex justify-between items-center">
                           <div>
                             <Link 
-                              href={`/admin/scholarships/edit/${scholarship.id}`}
+                              href={`/admin/scholarships/edit/${scholarship._id}`}
                               className="text-gray-900 dark:text-white hover:text-primary dark:hover:text-primary-light"
                             >
                               {scholarship.title}
@@ -231,7 +256,7 @@ export default function AdminDashboard() {
                           </div>
                           <div className="flex space-x-2 space-x-reverse">
                             <Link 
-                              href={`/admin/scholarships/edit/${scholarship.id}`}
+                              href={`/admin/scholarships/edit/${scholarship._id}`}
                               className="p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded"
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -282,10 +307,10 @@ export default function AdminDashboard() {
                 </div>
                 
                 <div className="p-6">
-                  {stats.popularScholarships.length > 0 ? (
+                  {scholarships.length > 0 ? (
                     <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                      {stats.popularScholarships.map((scholarship, index) => (
-                        <div key={scholarship.id} className="py-4 flex justify-between items-center">
+                      {scholarships.map((scholarship: any, index) => (
+                        <div key={scholarship._id} className="py-4 flex justify-between items-center">
                           <div className="flex items-center gap-3">
                             <div className="w-7 h-7 flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300">
                               {index + 1}
@@ -315,8 +340,8 @@ export default function AdminDashboard() {
             </div>
 
             {/* العمود الثاني */}
-            <div className="space-y-8">
               {/* آخر الرسائل */}
+            {/* <div className="space-y-8">
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
                   <h2 className="text-lg font-bold text-gray-900 dark:text-white">آخر الرسائل</h2>
@@ -359,7 +384,7 @@ export default function AdminDashboard() {
                     </div>
                   )}
                 </div>
-              </div>
+              </div> */}
 
               {/* نظرة عامة سريعة */}
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
@@ -423,7 +448,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
-          </div>
         </>
       )}
     </AdminLayout>

@@ -484,22 +484,25 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     // استخدام وحدة API الجديدة
     console.log(`استدعاء API للحصول على المنحة: ${slug}`);
     
-    let scholarshipData = null;
+    let scholarshipDD = null;
     let relatedScholarships = [];
+    let scholarshipData = [];
     
     try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
       // نستخدم المسار الكامل مع بادئة /server/api/ للتوافق مع Express
-      console.log(`Using URL: /server/api/scholarships/by-slug/${slug}`);
-      scholarshipData = await apiGet(`/server/api/scholarships/by-slug/${slug}`);
-      
+      console.log(`Using URL: ${API_BASE_URL}/scholarships/by-slug/${slug}`);
+      scholarshipDD = await apiGet(`/scholarships/slug/${slug}`);
+      scholarshipData = scholarshipDD.data;
+
       // محاولة الحصول على المنح ذات الصلة
       if (scholarshipData && scholarshipData.related) {
         relatedScholarships = scholarshipData.related;
-      } else if (scholarshipData && scholarshipData.id) {
+      } else if (scholarshipData && scholarshipData._id) {
         // إذا لم يتم توفير المنح ذات الصلة من API، نحاول الحصول عليها بشكل منفصل
         console.log(`محاولة الحصول على المنح ذات الصلة للمنحة ${scholarshipData.id}`);
         try {
-          let relatedData = await apiGet(`/server/api/scholarships/related/${scholarshipData.id}`);
+          let relatedData = await apiGet(`/scholarships/${scholarshipData._id}`);
           if (relatedData && Array.isArray(relatedData)) {
             relatedScholarships = relatedData;
           }
@@ -530,7 +533,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     const formattedScholarship = {
       ...safeScholarship,
       // التأكد من وجود الحقول المطلوبة
-      id: safeScholarship.id || 0,
+      id: safeScholarship._id || 0,
       title: safeScholarship.title || '',
       slug: safeScholarship.slug || slug,
       description: safeScholarship.description || '',
@@ -541,7 +544,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
         try { return serializeDate(safeScholarship.deadline) || safeScholarship.deadline || null; } 
         catch (e) { console.error('خطأ في معالجة الموعد النهائي:', e); return null; }
       })(),
-      fundingType: safeScholarship.fundingType || "ممول بالكامل",
+      fundingType: safeScholarship.isFullyFunded ? "ممول بالكامل" : "غير ممول بالكامل",
       studyDestination: safeScholarship.studyDestination || null,
       eligibilityCriteria: safeScholarship.eligibilityCriteria || null,
       applicationProcess: safeScholarship.applicationProcess || null,

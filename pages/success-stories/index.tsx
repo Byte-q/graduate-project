@@ -6,11 +6,11 @@ import MainLayout from '@/components/layout/MainLayout';
 import { SuccessStoryCard, SuccessStoryCardSkeleton } from '@/components/success-stories/SuccessStoryCard';
 import { SearchForm } from '@/components/search/SearchForm';
 import { Pagination } from '@/components/ui/Pagination';
-import { SuccessStory } from '@/fullsco-backend/src/shared/schema';
 import { fetchWithCache } from '@/hooks/use-cached-data';
+import { apiGet } from '@/lib/api';
 
 interface SuccessStoriesPageProps {
-  initialStories: SuccessStory[];
+  initialStories: any[]; // Changed from SuccessStory[] to any[] as schema is removed
   total: number;
   page: number;
   limit: number;
@@ -26,7 +26,7 @@ export default function SuccessStoriesPage({
   totalPages,
   search
 }: SuccessStoriesPageProps) {
-  const [stories, setStories] = useState<SuccessStory[]>(initialStories);
+  const [stories, setStories] = useState<any[]>(initialStories); // Changed from SuccessStory[] to any[]
   const [currentPage, setCurrentPage] = useState(page);
   const [searchQuery, setSearchQuery] = useState(search || '');
   const [isLoading, setIsLoading] = useState(false);
@@ -47,10 +47,9 @@ export default function SuccessStoriesPage({
           queryParams.append('search', searchQuery);
         }
 
-        const response = await fetch(`/api/success-stories?${queryParams.toString()}`);
-        const data = await response.json();
+        const data = await apiGet(`/success-stories`);
         
-        setStories(Array.isArray(data.stories) ? data.stories : []);
+        setStories(data.data || []);
         setCurrentTotal(data.total);
         setCurrentTotalPages(data.totalPages);
       } catch (error) {
@@ -106,7 +105,7 @@ export default function SuccessStoriesPage({
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {stories.map((story) => (
-                <SuccessStoryCard key={story.id} story={story} />
+                <SuccessStoryCard key={story._id} story={story} />
               ))}
             </div>
 
@@ -149,19 +148,26 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     }
 
     // استعلام لجلب قصص النجاح من API داخلي (سيتم تنفيذه من الخادم)
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const host = process.env.VERCEL_URL || 'localhost:5000';
-    const response = await fetch(`${protocol}://${host}/api/success-stories?${queryParams.toString()}`);
+    const data = await apiGet(`/success-stories`);
     
-    if (!response.ok) {
-      throw new Error('Failed to fetch success stories');
-    }
-
-    const data = await response.json();
+    // إعادة البيانات إلى الصفحة
+    if (!data || !data.data) {
+      console.error('Invalid data format from success stories API:', data);
+      return {
+        props: {
+          initialStories: [],
+          total: 0,
+          page: 1,
+          limit: 12,
+          totalPages: 1,
+          search: search || ''
+        }
+      };
+    };
 
     return {
       props: {
-        initialStories: Array.isArray(data.stories) ? data.stories : [],
+        initialStories: data.data || [],
         total: data.total || 0,
         page: data.page || 1,
         limit: data.limit || 12,

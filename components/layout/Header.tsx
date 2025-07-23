@@ -6,6 +6,8 @@ import { useSiteSettings } from '../../contexts/site-settings-context';
 import { useMenus } from '../../contexts/menus-context';
 import { useMobile } from '../../hooks/use-mobile';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3500/server/api';
+
 // تخزين الأيقونات المناسبة لكل نوع من أنواع القوائم
 const menuTypeIcons: Record<string, any> = {
   link: ExternalLink,
@@ -59,10 +61,11 @@ export default function Header() {
     // التحقق من حالة تسجيل الدخول
     const checkLoginStatus = async () => {
       try {
-        const response = await fetch('/api/auth/user');
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
+        // const response = await fetch(`http://localhost:3500/server/api/auth/me`);
+        const user = JSON.parse(sessionStorage.getItem('user') || 'null');
+        if (user) {
+          // const data = await response.json();
+          setUser(user);
           setIsLoggedIn(true);
         } else {
           setUser(null);
@@ -115,7 +118,7 @@ export default function Header() {
   // معالجة تسجيل الخروج
   const handleLogout = async () => {
     try {
-      const response = await fetch('/api/auth/logout', {
+      const response = await fetch(`${API_BASE_URL}/auth/logout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -125,6 +128,8 @@ export default function Header() {
       if (response.ok) {
         setUser(null);
         setIsLoggedIn(false);
+        sessionStorage.removeItem('user');
+        localStorage.removeItem('accessToken');
         router.push('/');
       }
     } catch (error) {
@@ -447,7 +452,7 @@ export default function Header() {
                   </div>
                   <div className="space-y-1">
                     <Link
-                      href="/dashboard"
+                      href="/profile"
                       className="block py-2 px-3 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >

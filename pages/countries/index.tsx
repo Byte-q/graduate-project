@@ -5,6 +5,7 @@ import Head from 'next/head';
 import MainLayout from '@/components/layout/MainLayout';
 import { SearchForm } from '@/components/search/SearchForm';
 import { Pagination } from '@/components/ui/Pagination';
+import { apiGet } from '@/lib/api';
 
 // تعريف نوع البيانات للدولة
 interface Country {
@@ -158,72 +159,26 @@ export default function CountriesPage({
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   try {
-    // استخراج معلمات الاستعلام
-    const page = parseInt(query.page as string || '1', 10);
-    const limit = parseInt(query.limit as string || '12', 10);
-    const search = query.search as string;
 
     // استيراد API handler مباشرة
-    const handler = (await import('../../api-disabled/countries/index')).default;
+    const res = await apiGet('/countries');
+    const responseData = await res.data;
     
-    // محاكاة طلب واستجابة
-    const req: any = {
-      method: 'GET',
-      query: {
-        page: page.toString(),
-        limit: limit.toString(),
-        ...(search && { search })
-      }
-    };
-    
-    // إنشاء كائن استجابة وهمي
-    let responseData: any = null;
-    const res: any = {
-      status: (code: number) => ({
-        json: (data: any) => {
-          responseData = data;
-          return res;
-        }
-      }),
-      setHeader: () => res,
-      end: () => res,
-    };
-    
-    // استدعاء API handler مباشرة
-    await handler(req, res);
     
     // التحقق من الاستجابة
     if (!responseData) {
       throw new Error('لم يتم استلام بيانات من واجهة برمجة التطبيقات');
     }
-
-    // جلب الدول من قاعدة البيانات مباشرة إذا كان واجهة API لا تعمل
-    if (!responseData.countries) {
-      const db = (await import('@/db')).db;
-      const { sql } = await import('drizzle-orm');
-      const countries = (await import('@/fullsco-backend/src/shared/schema')).countries;
-      
-      const countriesList = await db.select().from(countries).orderBy(countries.name);
       
       return {
         props: {
-          countries: countriesList || [],
+          countries: responseData || [],
           totalPages: 1,
           currentPage: 1,
-          totalItems: countriesList.length || 0,
+          totalItems: responseData.length || 0,
         },
       };
-    }
-
-    return {
-      props: {
-        countries: responseData.countries || [],
-        totalPages: responseData.pagination?.totalPages || 1,
-        currentPage: responseData.pagination?.page || 1,
-        totalItems: responseData.pagination?.totalItems || 0,
-      },
-    };
-  } catch (error) {
+    } catch (error) {
     console.error('Error fetching countries:', error);
     
     // إرجاع بيانات فارغة في حالة وجود خطأ

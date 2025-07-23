@@ -87,6 +87,11 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* My custom settings */
+.light-background {
+  background-color: #1e293b;
+}
+
 /* انتقال سلس لجميع العناصر الرئيسية */
 .card, 
 .btn,
