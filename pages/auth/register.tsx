@@ -60,7 +60,7 @@ export default function RegisterPage() {
       }
 
       // تم التسجيل بنجاح
-      router.push('/dashboard');
+      router.push('/');
     } catch (err: any) {
       setError(err.message || 'حدث خطأ في عملية التسجيل، يرجى المحاولة مرة أخرى');
     } finally {

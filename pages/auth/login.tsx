@@ -30,7 +30,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3500/server/api';
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://back-end-1-6vrh.onrender.com/server/api';
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
