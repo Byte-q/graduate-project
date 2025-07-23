@@ -7,6 +7,7 @@ import { ScholarshipCard } from '@/components/scholarships/ScholarshipCard';
 import { FilterComponent } from '@/components/search/FilterComponent';
 import { SearchForm } from '@/components/search/SearchForm';
 import { Pagination } from '@/components/ui/Pagination';
+import { apiGet } from '@/lib/api';
 
 // تعريف نوع البيانات للتصنيف
 interface Category {
@@ -155,43 +156,47 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     const limit = parseInt(query.limit as string || '12', 10);
     const search = query.search as string;
 
-    // استيراد API handler مباشرة
-    const handler = (await import('../../api-disabled/categories/index')).default;
+    // // استيراد API handler مباشرة
+    // const handler = (await import('../../api-disabled/categories/index')).default;
     
-    // محاكاة طلب واستجابة
-    const req: any = {
-      method: 'GET',
-      query: {
-        page: page.toString(),
-        limit: limit.toString(),
-        ...(search && { search })
-      }
-    };
+    const res = await apiGet('/categories');
+
+    // // محاكاة طلب واستجابة
+    // const req: any = {
+    //   method: 'GET',
+    //   query: {
+    //     page: page.toString(),
+    //     limit: limit.toString(),
+    //     ...(search && { search })
+    //   }
+    // };
     
-    // إنشاء كائن استجابة وهمي
-    let responseData: any = null;
-    const res: any = {
-      status: (code: number) => ({
-        json: (data: any) => {
-          responseData = data;
-          return res;
-        }
-      }),
-      setHeader: () => res,
-      end: () => res,
-    };
+    // // إنشاء كائن استجابة وهمي
+    // let responseData: any = null;
+    // const res: any = {
+    //   status: (code: number) => ({
+    //     json: (data: any) => {
+    //       responseData = data;
+    //       return res;
+    //     }
+    //   }),
+    //   setHeader: () => res,
+    //   end: () => res,
+    // };
     
-    // استدعاء API handler مباشرة
-    await handler(req, res);
+    // // استدعاء API handler مباشرة
+    // await handler(req, res);
+
+    const responseData = res.data;
     
     // التحقق من الاستجابة
-    if (!responseData) {
-      throw new Error('لم يتم استلام بيانات من واجهة برمجة التطبيقات');
-    }
+    // if (!responseData) {
+    //   throw new Error('لم يتم استلام بيانات من واجهة برمجة التطبيقات');
+    // }
 
     return {
       props: {
-        categories: responseData.categories || [],
+        categories: responseData.name || [],
         totalPages: responseData.pagination?.totalPages || 1,
         currentPage: responseData.pagination?.page || 1,
         totalItems: responseData.pagination?.totalItems || 0,

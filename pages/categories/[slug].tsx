@@ -6,6 +6,7 @@ import MainLayout from '@/components/layout/MainLayout';
 import { ScholarshipCard } from '@/components/scholarships/ScholarshipCard';
 import { Pagination } from '@/components/ui/Pagination';
 import { SearchForm } from '@/components/search/SearchForm';
+import { apiGet } from '@/lib/api';
 
 // تعريف نوع البيانات للتصنيف
 interface Category {
@@ -195,52 +196,48 @@ export default function CategoryDetailPage({
 export const getServerSideProps: GetServerSideProps = async ({ params, query }) => {
   try {
     const { slug } = params!;
+
+
     
     // استخراج معلمات الاستعلام
     const page = parseInt(query.page as string || '1', 10);
     const limit = parseInt(query.limit as string || '9', 10);
 
-    // استيراد الوحدات اللازمة
-    const { db } = await import('@/db');
-    const { eq, sql } = await import('drizzle-orm');
-    const { categories, scholarships } = await import('@/fullsco-backend/src/shared/schema');
+    // // استيراد الوحدات اللازمة
+    // const { db } = await import('@/db');
+    // const { eq, sql } = await import('drizzle-orm');
+    // const { categories, scholarships } = await import('@/fullsco-backend/src/shared/schema');
+
+    const res = await apiGet('/categories')
+    const categories = res.data;
     
-    // جلب تفاصيل التصنيف
-    const [category] = await db
-      .select()
-      .from(categories)
-      .where(eq(categories.slug, slug as string));
+    // // جلب تفاصيل التصنيف
+    // const [category] = await db
+    //   .select()
+    //   .from(categories)
+    //   .where(eq(categories.slug, slug as string));
     
     // التحقق من وجود التصنيف
-    if (!category) {
+    if (!categories || categories.length === 0) {
       return { notFound: true };
     }
     
     // جلب المنح المرتبطة بالتصنيف
-    const offset = (page - 1) * limit;
     
-    const scholarshipsList = await db
-      .select()
-      .from(scholarships)
-      .where(eq(scholarships.categoryId, category.id))
-      .limit(limit)
-      .offset(offset)
-      .orderBy(scholarships.createdAt);
+    const scholarshipsList = await apiGet(`/scholarships?category=${slug}`);
+    const scholarships = scholarshipsList.data || [];
     
     // جلب إجمالي عدد المنح للتصنيف
-    const [{ count }] = await db
-      .select({ count: sql`COUNT(*)`.mapWith(Number) })
-      .from(scholarships)
-      .where(eq(scholarships.categoryId, category.id));
+    const [{ count }] = scholarships.length;
     
     const totalItems = count || 0;
     const totalPages = Math.ceil(totalItems / limit);
     
     // تحويل كائن المنحة إلى كائن قابل للتسلسل (JSON serializable)
-    const serializableScholarships = scholarshipsList.map(scholarship => {
+    const serializableScholarships = scholarships.map((scholarship: any) => {
       // استخراج الخصائص الأساسية
       const { 
-        id, title, slug, description, amount, currency, university, department, website,
+        _id, title, slug, description, amount, currency, university, department, website,
         isFeatured, isFullyFunded, countryId, levelId, categoryId, requirements,
         applicationLink, imageUrl, content, seoTitle, seoDescription, seoKeywords,
         focusKeyword, isPublished
@@ -268,7 +265,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
       
       // إرجاع كائن جديد مع جميع الخصائص محولة بشكل صحيح
       return {
-        id, title, slug, description, amount, currency, university, department, website,
+        _id, title, slug, description, amount, currency, university, department, website,
         isFeatured, isFullyFunded, countryId, levelId, categoryId, requirements,
         applicationLink, imageUrl, content, seoTitle, seoDescription, seoKeywords,
         focusKeyword, isPublished, created_at, updated_at, start_date, end_date, deadline
@@ -277,7 +274,9 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
 
     return {
       props: {
-        category,
+        category: {
+          id: categories[0]._id,
+        },
         scholarships: serializableScholarships || [],
         totalPages,
         currentPage: page,

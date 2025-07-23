@@ -6,6 +6,7 @@ import MainLayout from '@/components/layout/MainLayout';
 import { ScholarshipCard } from '@/components/scholarships/ScholarshipCard';
 import { Pagination } from '@/components/ui/Pagination';
 import { SearchForm } from '@/components/search/SearchForm';
+import { apiGet } from '@/lib/api';
 
 // تعريف نوع البيانات للدولة
 interface Country {
@@ -216,39 +217,34 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
     const page = parseInt(query.page as string || '1', 10);
     const limit = parseInt(query.limit as string || '9', 10);
 
-    // استيراد الوحدات اللازمة
-    const { db } = await import('@/db');
-    const { eq, sql } = await import('drizzle-orm');
-    const { countries, scholarships } = await import('@/fullsco-backend/src/shared/schema');
+    // // استيراد الوحدات اللازمة
+    // const { db } = await import('@/db');
+    // const { eq, sql } = await import('drizzle-orm');
+    // const { countries, scholarships } = await import('@/fullsco-backend/src/shared/schema');
+
+    const res = await apiGet('/countries');
+    const countries = res.data;
     
-    // جلب تفاصيل الدولة
-    const [country] = await db
-      .select()
-      .from(countries)
-      .where(eq(countries.slug, slug as string));
+    // // جلب تفاصيل الدولة
+    // const [country] = await db
+    //   .select()
+    //   .from(countries)
+    //   .where(eq(countries.slug, slug as string));
     
     // التحقق من وجود الدولة
-    if (!country) {
-      console.error('Country not found:', slug);
-      return { notFound: true };
-    }
+    // if (!country) {
+    //   console.error('Country not found:', slug);
+    //   return { notFound: true };
+    // }
     
     // جلب المنح المرتبطة بالدولة
     const offset = (page - 1) * limit;
     
-    const scholarshipsList = await db
-      .select()
-      .from(scholarships)
-      .where(eq(scholarships.countryId, country.id))
-      .limit(limit)
-      .offset(offset)
-      .orderBy(scholarships.createdAt);
+    const scholarshipsList = await apiGet(`/scholarships?country=${slug}`);
+    const scholarships = scholarshipsList.data || [];
     
     // جلب إجمالي عدد المنح للدولة
-    const [{ count }] = await db
-      .select({ count: sql`COUNT(*)`.mapWith(Number) })
-      .from(scholarships)
-      .where(eq(scholarships.countryId, country.id));
+    const [{ count }] = scholarshipsList.length;
     
     const totalItems = count || 0;
     const totalPages = Math.ceil(totalItems / limit);
@@ -257,7 +253,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
     const serializableScholarships = scholarshipsList.map((scholarship: any) => {
       // استخراج الخصائص الأساسية
       const { 
-        id, title, slug, description, amount, currency, university, department, website,
+        _id, title, slug, description, amount, currency, university, department, website,
         isFeatured, isFullyFunded, countryId, levelId, categoryId, requirements,
         applicationLink, imageUrl, content, seoTitle, seoDescription, seoKeywords,
         focusKeyword, isPublished
@@ -284,7 +280,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
       
       // إرجاع كائن جديد مع جميع الخصائص محولة بشكل صحيح
       return {
-        id, title, slug, description, amount, currency, university, department, website,
+        _id, title, slug, description, amount, currency, university, department, website,
         isFeatured, isFullyFunded, countryId, levelId, categoryId, requirements,
         applicationLink, imageUrl, content, seoTitle, seoDescription, seoKeywords,
         focusKeyword, isPublished
@@ -293,8 +289,8 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
     
     return {
       props: {
-        country,
-        scholarships: serializableScholarships || [],
+        countries: countries || [],
+        scholarships: scholarships || [],
         totalPages,
         currentPage: page,
         totalItems,
