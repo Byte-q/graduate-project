@@ -4,7 +4,6 @@ import Link from 'next/link';
 import Head from 'next/head';
 import MainLayout from '@/components/layout/MainLayout';
 import { useSiteSettings } from '@/contexts/site-settings-context';
-import { API_BASE_URL } from '@/lib/api';
 
 export default function LoginPage() {
   const router = useRouter();

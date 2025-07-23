@@ -4,7 +4,6 @@ import Link from 'next/link';
 import Head from 'next/head';
 import MainLayout from '@/components/layout/MainLayout';
 import { useSiteSettings } from '@/contexts/site-settings-context';
-import { API_BASE_URL } from '@/lib/api';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -40,6 +39,7 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {
@@ -60,7 +60,7 @@ export default function RegisterPage() {
       }
 
       // تم التسجيل بنجاح
-      router.push('/');
+      router.push('/auth/login');
     } catch (err: any) {
       setError(err.message || 'حدث خطأ في عملية التسجيل، يرجى المحاولة مرة أخرى');
     } finally {

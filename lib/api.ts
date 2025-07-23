@@ -21,23 +21,23 @@ function buildUrl(endpoint: string, params?: Record<string, any>) {
 async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}, params?: Record<string, any>): Promise<T> {
   const url = buildUrl(endpoint, params);
   
-  // --- DEBUGGING LOG ---
-  // This log will appear in your server's console (where Next.js is running)
-  console.log('apiFetch: Attempting to fetch from URL:', url);
-  // --- END DEBUGGING LOG ---
+  // // --- DEBUGGING LOG ---
+  // // This log will appear in your server's console (where Next.js is running)
+  // console.log('apiFetch: Attempting to fetch from URL:', url);
+  // // --- END DEBUGGING LOG ---
 
   const response = await fetch(url, options);
 
-  // --- DEBUGGING LOG ---
-  console.log('apiFetch: Received response.ok:', response.ok);
-  console.log('apiFetch: Received response.status:', response.status);
-  console.log('apiFetch: Received response.statusText:', response.statusText);
-  // --- END DEBUGGING LOG ---
+  // // --- DEBUGGING LOG ---
+  // console.log('apiFetch: Received response.ok:', response.ok);
+  // console.log('apiFetch: Received response.status:', response.status);
+  // console.log('apiFetch: Received response.statusText:', response.statusText);
+  // // --- END DEBUGGING LOG ---
 
   if (!response.ok) {
-    // --- DEBUGGING LOG ---
-    console.error('apiFetch: Response not OK. Full response object:', response);
-    // --- END DEBUGGING LOG ---
+    // // --- DEBUGGING LOG ---
+    // console.error('apiFetch: Response not OK. Full response object:', response);
+    // // --- END DEBUGGING LOG ---
 
     let errorMessage = `API error: ${response.status} ${response.statusText}`;
     try {
@@ -46,16 +46,16 @@ async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}, pa
       if (errorData?.message) errorMessage = errorData.message;
     } catch (jsonParseError) {
       // If JSON parsing fails, try to get the raw text error message
-      // --- DEBUGGING LOG ---
-      console.error('apiFetch: Failed to parse error response as JSON, trying as text:', jsonParseError);
-      // --- END DEBUGGING LOG ---
+      // // --- DEBUGGING LOG ---
+      // console.error('apiFetch: Failed to parse error response as JSON, trying as text:', jsonParseError);
+      // // --- END DEBUGGING LOG ---
       try {
         const errorText = await response.text();
         if (errorText) errorMessage = errorText;
       } catch (textParseError) {
-        // --- DEBUGGING LOG ---
-        console.error('apiFetch: Failed to parse error response as text:', textParseError);
-        // --- END DEBUGGING LOG ---
+        // // --- DEBUGGING LOG ---
+        // console.error('apiFetch: Failed to parse error response as text:', textParseError);
+        // // --- END DEBUGGING LOG ---
       }
     }
     throw new Error(errorMessage);
@@ -66,9 +66,9 @@ async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}, pa
     return await response.json();
   } catch (jsonError) {
     // This catch block handles cases where the successful response is not valid JSON
-    // --- DEBUGGING LOG ---
-    console.error('apiFetch: Error parsing successful response as JSON, attempting to read as text:', jsonError);
-    // --- END DEBUGGING LOG ---
+    // // --- DEBUGGING LOG ---
+    // console.error('apiFetch: Error parsing successful response as JSON, attempting to read as text:', jsonError);
+    // // --- END DEBUGGING LOG ---
     return (await response.text()) as any; // Fallback to text if JSON parsing fails
   }
 }

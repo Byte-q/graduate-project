@@ -1,26 +1,8 @@
 {
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
-  "/404": "pages/404.html",
   "/_document": "pages/_document.js",
-  "/admin": "pages/admin.html",
-  "/admin/layouts/AdminLayout": "pages/admin/layouts/AdminLayout.html",
-  "/admin/users": "pages/admin/users.html",
-  "/auth/login": "pages/auth/login.html",
-  "/auth/register": "pages/auth/register.html",
-  "/contact": "pages/contact.html",
-  "/profile": "pages/profile.html",
-  "/categories": "pages/categories.js",
-  "/countries/[slug]": "pages/countries/[slug].js",
-  "/categories/[slug]": "pages/categories/[slug].js",
-  "/pages/[slug]": "pages/pages/[slug].js",
-  "/countries": "pages/countries.js",
-  "/posts": "pages/posts.js",
   "/": "pages/index.js",
-  "/scholarships/search": "pages/scholarships/search.js",
-  "/posts/[slug]": "pages/posts/[slug].js",
-  "/success-stories": "pages/success-stories.js",
-  "/success-stories/[slug]": "pages/success-stories/[slug].js",
-  "/scholarships/[slug]": "pages/scholarships/[slug].js",
-  "/scholarships": "pages/scholarships.js"
+  "/auth/login": "pages/auth/login.js",
+  "/auth/register": "pages/auth/register.js"
 }

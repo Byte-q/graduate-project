@@ -6,7 +6,7 @@ import { useSiteSettings } from '../../contexts/site-settings-context';
 import { useMenus } from '../../contexts/menus-context';
 import { useMobile } from '../../hooks/use-mobile';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3500/server/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://back-end-1-6vrh.onrender.com/server/api';
 
 // تخزين الأيقونات المناسبة لكل نوع من أنواع القوائم
 const menuTypeIcons: Record<string, any> = {
