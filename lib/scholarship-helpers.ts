@@ -2,7 +2,7 @@
  * وظائف مساعدة خاصة بالمنح الدراسية
  */
 import { safeObjectEntries } from './utils';
-import type { Level } from '../shared/schema';
+// import type { Level } from '../shared/';
 
 /**
  * استخراج معلومات المستوى الأكاديمي من عنوان المنحة إذا لم يكن محدد بشكل صريح
@@ -13,7 +13,7 @@ import type { Level } from '../shared/schema';
  * استخراج معلومات المستوى الأكاديمي من عنوان المنحة باستخدام الكلمات المفتاحية
  * تم تحسين هذه الدالة بحيث تستخدم استراتيجية بحث أكثر أمانًا
  */
-export function detectLevelFromTitle(title: string, allLevels: Level[]): Level | null {
+export function detectLevelFromTitle(title: string, allLevels: any[]): any | null {
   if (!title || !allLevels || !Array.isArray(allLevels) || allLevels.length === 0) {
     console.log('لا يمكن اكتشاف المستوى: البيانات غير كافية');
     return null;

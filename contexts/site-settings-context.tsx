@@ -165,7 +165,7 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
         console.log('بدء استعلام إعدادات الموقع');
         
         // استخدام وحدة API الجديدة
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:3500/server/api'; // تأكد من تعيين URL API في البيئة
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://back-end-1-6vrh.onrender.com/server/api'; // تأكد من تعيين URL API في البيئة
         const res = (await fetch(`${apiUrl}/site-settings`));
         const data: any = res.json();
         console.log('بيانات استجابة API لإعدادات الموقع:', data);

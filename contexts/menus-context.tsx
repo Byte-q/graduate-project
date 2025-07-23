@@ -114,7 +114,7 @@ export function MenusProvider({ children }: { children: ReactNode }) {
       
       try {
         // جلب جميع القوائم في طلبات متوازية باستخدام وحدة API الجديدة
-        const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3500/server/api';
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://back-end-1-6vrh.onrender.com/server/api';
         const [headerData, footerData, footerSecondaryData] = await Promise.all([
           apiGet(`/menus`, { params: { location: 'header' } }),
           apiGet(`/menus`, { params: { location: 'footer' } }),
